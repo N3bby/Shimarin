@@ -1,0 +1,43 @@
+import {LogLevel} from "./logging/Logging";
+
+//Character that denotes the start of a command message
+export const COMMAND_PREFIX: string = "?";
+
+//Id of the text channel in which the bot will post messages
+export const MAIN_TEXT_CHANNEL: string = "CHANGE THIS";
+
+//Whether we should listen for commands from other channels. Must be in the same guild as MAIN_TEXT_CHANNEL
+export const LISTEN_TO_OTHER_CHANNELS: boolean = true;
+
+//Discord bot auth token
+export const DISCORD_TOKEN: string = "CHANGE THIS";
+
+//Owner id. Could be used to authorize administrative commands
+export const OWNER_ID: string = "CHANGE THIS";
+
+//Minimum log level that will be shown in the console
+export const LOG_LEVEL: LogLevel = LogLevel.DEBUG;
+
+//For messages that get auto-removed after a period of time,
+//this value will determine the interval rate for timer updates
+export const MESSAGE_DELETE_INTERVAL: number = 5000;
+
+//For messages that are always at the bottom of the screen, when people are conversing, this is the time we will wait
+//to remake the message. This is to make sure the bot is not too obnoxious
+export const BOTTOM_MESSAGE_CONVERSATION_WAIT_DELAY: number = 10000;
+
+//Milliseconds after which a command output message is deleted
+export const COMMAND_OUTPUT_DELTE_DELAY: number = 15000;
+
+//Google api key used for youtube search results
+export const YOUTUBE_DATA_API_KEY: string = "CHANGE THIS";
+
+//Delay after which a song selection message times out (and is removed)
+export const SONG_SELECTION_DELETE_DELAY: number = 20000;
+
+//Amount with which to change the volume when a volume reaction is used
+export const VOLUME_STEP: number = 0.1;
+
+//Amount of milliseconds after which to leave the voice channel when the queue becomes empty
+//Default: 900,000ms -> 15 minutes
+export const MUSIC_END_LEAVE_DELAY: number = 900000;
