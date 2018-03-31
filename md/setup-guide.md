@@ -49,7 +49,8 @@ https://console.developers.google.com
 
 ### Configuring Shimarin
 
-Open `src/properties.ts` in your favourite text editor
+Rename `src/properties.ts.example` to `properties.ts`.  
+Open this file in your favourite text editor
 ![](./img/properties/properties.PNG)
 
 Replace the parameters containing 'CHANGE THIS' with the following:
