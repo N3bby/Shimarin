@@ -11,6 +11,7 @@ I'll be working on improving this somewhat.
 
 - Cleans up user commands
 - Only uses 1 message which is updated in favor of creating a new one every time a command is issued (which would clutter the chat log).
+- Moves its 1 message to the bottom of the chat log (waits if people are chatting)
 - Support for Youtube song urls
 - Searching for youtube songs by keyword
 - Reaction based bot interaction system. The amount of commands you need to use is minimal
