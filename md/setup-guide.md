@@ -25,11 +25,11 @@ https://discordapp.com/developers/applications/me
 <img src="https://github.com/Razacx/Shimarin/blob/master/md/img/discord-bot-token/new-app.PNG" width="680">
 3. Set app name, description (optional) and icon (optional)  
 Then press 'Create App'
-![](./img/discord-bot-token/app-info.PNG)
+<img src="https://github.com/Razacx/Shimarin/blob/master/md/img/discord-bot-token/app-info.PNG" width="680">
 4. Scroll down and click 'Create a Bot User'
-![](./img/discord-bot-token/create-bot-user.PNG)
+<img src="https://github.com/Razacx/Shimarin/blob/master/md/img/discord-bot-token/create-bot-user.PNG" width="680">
 5. **Click 'click to reveal' to get your bot token. Keep this safe.**
-![](./img/discord-bot-token/click-to-reveal.PNG)
+<img src="https://github.com/Razacx/Shimarin/blob/master/md/img/discord-bot-token/click-to-reveal.PNG" width="680">
 
 ### Getting a Google Youtube API token
 
