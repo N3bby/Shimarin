@@ -49,7 +49,8 @@ https://console.developers.google.com
 
 ### Adding the bot to your server
 
-(TODO: Validate this section and add screenshots)
+(TODO: Validate this section and add screenshots  
+If the bot has some issues I might have missed some permissions here)
 
 1. Go to https://discordapp.com/developers/applications/me
 2. Click on your application
