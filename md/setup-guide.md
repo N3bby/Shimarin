@@ -51,8 +51,7 @@ https://console.developers.google.com
 
 (TODO: Validate this section and add screenshots)
 
-1. Go to   
-https://discordapp.com/developers/applications/me
+1. Go to https://discordapp.com/developers/applications/me
 2. Click on your application
 3. Click the 'Generate OAuth2 URL' button
 4. Set scope to 'bot'
