@@ -139,7 +139,8 @@ export class MusicPlayer {
 
         //Get stream (ytdl) and play it
         let stream = ytdl(this._currentSong.link, {filter: "audioonly", quality: "highestaudio"});
-        this._streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, volume: this._volume, passes: 3});
+        this._streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: 3});
+        this._streamDispatcher.setVolumeLogarithmic(this._volume);
 
         //Register events
         this._streamDispatcher.on("end", reason => {
