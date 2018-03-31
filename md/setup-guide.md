@@ -36,22 +36,22 @@ Then press 'Create App'
 1. Go to 
 https://console.developers.google.com
 2. Create a new project
-3. In the dashboard, click 'Enable apis and services'
-![](./img/google-api-token/enable-apis-and-services.PNG)
-4. Pick 'Youtube Data API v3'
-![](./img/google-api-token/pick-service.PNG)
+3. In the dashboard, click 'Enable apis and services'  
+    <img src="https://github.com/Razacx/Shimarin/blob/master/md/img/google-api-token/enable-apis-and-services.PNG" width="680"/>
+4. Pick 'Youtube Data API v3'  
+    <img src="https://github.com/Razacx/Shimarin/blob/master/md/img/google-api-token/pick-service.PNG" width="680"/>
 5. Click 'Enable'
-6. Go to 'Credentials' and create a new 'API key'
-![](./img/google-api-token/create-api-key-credentials.PNG)
+6. Go to 'Credentials' and create a new 'API key'  
+    <img src="https://github.com/Razacx/Shimarin/blob/master/md/img/google-api-token/create-api-key-credentials.PNG" width="680"/>
 7. **Your new API key should be ready now.** 
-8. (optional) Click 'Restrictions' -> 'API Restrictions' and select 'Youtube Data API v3'
-![](./img/google-api-token/api-restrictions.PNG)
+8. (optional) Click 'Restrictions' -> 'API Restrictions' and select 'Youtube Data API v3'  
+    <img src="https://github.com/Razacx/Shimarin/blob/master/md/img/google-api-token/api-restrictions.PNG" width="680"/>
 
 ### Configuring Shimarin
 
 Rename `src/properties.ts.example` to `properties.ts`.  
-Open this file in your favourite text editor
-![](./img/properties/properties.PNG)
+Open this file in your favourite text editor  
+    <img src="https://github.com/Razacx/Shimarin/blob/master/md/img/properties/properties.PNG" width="680"/>
 
 Replace the parameters containing 'CHANGE THIS' with the following:
 
