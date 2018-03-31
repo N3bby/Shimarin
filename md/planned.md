@@ -1,6 +1,7 @@
 # Planned Features/Improvements
 
 - More console info/debug information
+- Documentation
 - Rewriting messy classes
     - ManagedMessages
     - MusicPlayer
