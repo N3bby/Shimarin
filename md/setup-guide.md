@@ -47,6 +47,31 @@ https://console.developers.google.com
 8. (optional) Click 'Restrictions' -> 'API Restrictions' and select 'Youtube Data API v3'  
     <img src="https://github.com/Razacx/Shimarin/blob/master/md/img/google-api-token/api-restrictions.PNG" width="680"/>
 
+### Adding the bot to your server
+
+(TODO: Validate this section and add screenshots)
+
+1. Go to   
+https://discordapp.com/developers/applications/me
+2. Click on your application
+3. Click the 'Generate OAuth2 URL' button
+4. Set scope to 'bot'
+5. Enable the following permissions:    
+    - View Channels
+    - Send Messages
+    - Manage Messages
+    - Embed Links
+    - Attach Files
+    - Read Message History
+    - Mention Everyone
+    - Add Reactions
+    - Connect
+    - Speak
+    - Use Members
+    - Use Voice Activity
+6. Go to the generated link
+7. Select your server and add the bot
+
 ### Configuring Shimarin
 
 Rename `src/properties.ts.example` to `properties.ts`.  
