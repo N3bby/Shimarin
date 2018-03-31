@@ -25,6 +25,8 @@ Go [here](./md/setup-guide.md) for a setup guide
 
 ![](./md/img/example.PNG)
 
+## Commands
+[Commands](./md/commands.md)
 
 ## Planned Features/Improvements
 
