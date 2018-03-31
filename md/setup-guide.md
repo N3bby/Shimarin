@@ -22,7 +22,7 @@ Clone the repository or [download it as a .zip file](https://github.com/Razacx/S
 1. Go to 
 https://discordapp.com/developers/applications/me
 2. Press 'New App' 
-<img src="https://github.com/Razacx/Shimarin/blob/master/md/img/discord-bot-token/new-app.PNG" width="800">
+<img src="https://github.com/Razacx/Shimarin/blob/master/md/img/discord-bot-token/new-app.PNG" width="680">
 3. Set app name, description (optional) and icon (optional)  
 Then press 'Create App'
 ![](./img/discord-bot-token/app-info.PNG)
