@@ -70,6 +70,9 @@ Run this (from the root directory):
 npm install
 ````
 
+**Currently, there is an issue with one of the dependencies not compiling.  
+Check the 'youtube-search index.d.ts compilation issue' section [here](./known-issues.md) to fix this.**
+
 ### Running Shimarin
 
 #### Unix shell 
