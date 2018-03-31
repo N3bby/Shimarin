@@ -108,6 +108,8 @@ export class MainManagedMessage extends ManagedMessage {
             }
         }
 
+        embed.setColor("#2ecc71");
+
         return embed;
 
     }

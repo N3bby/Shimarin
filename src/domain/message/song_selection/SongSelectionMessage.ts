@@ -80,6 +80,8 @@ export class SongSelectionManagedMessage extends ManagedMessage {
         embed.setDescription(description);
         embed.setFooter(`⌛ ${Math.round(this._msUntilDeletion / 1000)}s`);
 
+        embed.setColor("#2ecc71");
+
         return {content: undefined, options: {embed: embed}};
     }
 
