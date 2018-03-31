@@ -10,7 +10,7 @@ Install by running: `npm i -g typescript`
 (These are the versions that were used during development, it may work perfectly fine on other versions)
 
 - Discord Bot token
-- Google Youtube API token
+- Google Youtube Data API v3 token
 
 ## Downloads
 Clone the repository or [download it as a .zip file](https://github.com/Razacx/Shimarin/archive/master.zip)
@@ -58,7 +58,7 @@ Replace the parameters containing 'CHANGE THIS' with the following:
 1. The text channel you want the bot to post messages in. Can be found by right-clicking the text channel and choosing 'Copy ID'.
 2. Your Discord Bot token (see earlier in this document).
 3. The id of the bot owner (you). Can be found by right-clicking your own name in discord and choosing 'Copy ID'.
-4. Your Google Youtube API token (see earlier in this document).
+4. Your Google Youtube Data API v3 token (see earlier in this document).
 
 All other bot properties have a brief description, configure them as you want.  
 I wouldn't put any of the delays too low though, because you'll run into rate-limiting issues then.
