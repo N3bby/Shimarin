@@ -75,7 +75,7 @@ export class SongSelectionManagedMessage extends ManagedMessage {
 
         let description = "";
         for (let i = 0; i < this._ytSongs.length; i++) {
-            description += `**${i + 1}.** ${this._ytSongs[i].title} [${secondsToFormat(this._ytSongs[i].length)}]\n`;
+            description += `\`${i + 1}.\` \`[${secondsToFormat(this._ytSongs[i].length)}]\` ${this._ytSongs[i].title}\n`;
         }
         embed.setDescription(description);
         embed.setFooter(`⌛ ${Math.round(this._msUntilDeletion / 1000)}s`);
