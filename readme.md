@@ -22,7 +22,11 @@ I'll be working on improving this somewhat.
 
 Go [here](./md/setup-guide.md) for a setup guide
 
-## Screenshot
+## Example
 
-TODO
+![](./md/img/example.PNG)
 
+
+## Planned Features/Improvements
+
+Can be found [here](./md/planned.md) 
