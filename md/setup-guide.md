@@ -50,8 +50,9 @@ https://console.developers.google.com
 ### Configuring Shimarin
 
 Rename `src/properties.ts.example` to `properties.ts`.  
-Open this file in your favourite text editor  
-    <img src="https://github.com/Razacx/Shimarin/blob/master/md/img/properties/properties.PNG" width="680"/>
+Open this file in your favourite text editor
+
+<img src="https://github.com/Razacx/Shimarin/blob/master/md/img/properties/properties.PNG" width="680"/>
 
 Replace the parameters containing 'CHANGE THIS' with the following:
 
