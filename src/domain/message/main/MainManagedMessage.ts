@@ -173,10 +173,10 @@ export class MainManagedMessage extends ManagedMessage {
                         this._musicPlayer.next();
                         break;
                     case "🔉":
-                        this._musicPlayer.volume += VOLUME_STEP;
+                        this._musicPlayer.volume -= VOLUME_STEP;
                         break;
                     case "🔊":
-                        this._musicPlayer.volume -= VOLUME_STEP;
+                        this._musicPlayer.volume += VOLUME_STEP;
                         break;
                 }
             }
