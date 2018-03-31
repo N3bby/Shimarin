@@ -39,7 +39,6 @@ export class MusicPlayer {
         //Also set streamDispatcher value if a song is currently playing
         if(this._streamDispatcher !== undefined) {
             this._streamDispatcher.setVolumeLogarithmic(value);
-            this._logger.debug("Test " + this._streamDispatcher.volume);
         }
     }
 
