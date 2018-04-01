@@ -11,3 +11,6 @@ declare function search(
   cb?: (err: Error, result?: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void
 ): Promise<(result: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void>;
 ````
+
+### \[MainManagedMessage] On initialize reaction 'message is undefined' while song is playing
+
