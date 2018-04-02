@@ -3,7 +3,7 @@ import {createLogger, Logger} from "../../logging/Logging";
 import {YoutubeSong} from "../model/YoutubeSong";
 import Timer = NodeJS.Timer;
 import {injectable} from "inversify";
-import {MUSIC_END_LEAVE_DELAY} from "../../properties";
+import {MUSIC_END_LEAVE_DELAY, VOICE_CONNECTION_PASSES} from "../../properties";
 const ytdl = require('ytdl-core');
 
 /**
@@ -139,7 +139,7 @@ export class MusicPlayer {
 
         //Get stream (ytdl) and play it
         let stream = ytdl(this._currentSong.link, {filter: "audioonly", quality: "highestaudio"});
-        this._streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: 3});
+        this._streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: VOICE_CONNECTION_PASSES});
         this._streamDispatcher.setVolumeLogarithmic(this._volume);
 
         //Register events
