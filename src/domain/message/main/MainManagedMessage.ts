@@ -132,13 +132,13 @@ export class MainManagedMessage extends ManagedMessage {
 
 
     async makeMessage(deleteAfter?: number): Promise<void> {
-        super.makeMessage(deleteAfter);
-        this._initializeReactions();
+        await super.makeMessage(deleteAfter);
+        await this._initializeReactions();
     }
 
     async updateMessage(): Promise<void> {
-        super.updateMessage();
-        this._initializeReactions();
+        await super.updateMessage();
+        await this._initializeReactions();
     }
 
     private async _initializeReactions() {
@@ -170,7 +170,7 @@ export class MainManagedMessage extends ManagedMessage {
                 switch (messageReaction.emoji.name) {
                     case "⏹":
                         this._musicPlayer.stop();
-                        break;
+                        return; //Message will be re-created so no need to remove reaction
                     case "⏩":
                         this._musicPlayer.next();
                         break;
