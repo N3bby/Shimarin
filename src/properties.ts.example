@@ -41,3 +41,7 @@ export const VOLUME_STEP: number = 0.1;
 //Amount of milliseconds after which to leave the voice channel when the queue becomes empty
 //Default: 900,000ms -> 15 minutes
 export const MUSIC_END_LEAVE_DELAY: number = 900000;
+
+//Amount of times packets are send over the voice connection (to reduce packet loss)
+//More info: https://github.com/discordjs/discord.js/blob/master/docs/topics/voice.md
+export const VOICE_CONNECTION_PASSES: number = 2;
