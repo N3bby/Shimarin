@@ -5,6 +5,7 @@ import Timer = NodeJS.Timer;
 import {injectable} from "inversify";
 import {MUSIC_END_LEAVE_DELAY, VOICE_CONNECTION_PASSES} from "../../properties";
 const ytdl = require('ytdl-core');
+const ytas = require('youtube-audio-stream');
 
 /**
  * Wrapper for queue/stream/voice related logic
@@ -138,7 +139,8 @@ export class MusicPlayer {
         }
 
         //Get stream (ytdl) and play it
-        let stream = ytdl(this._currentSong.link, {filter: "audioonly", quality: "highestaudio"});
+        // let stream = ytdl(this._currentSong.link, {filter: "audioonly", quality: "highestaudio"});
+        let stream = ytas(this._currentSong.link);
         this._streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: VOICE_CONNECTION_PASSES});
         this._streamDispatcher.setVolumeLogarithmic(this._volume);
 
