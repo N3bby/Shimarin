@@ -12,7 +12,6 @@ let logger = createLogger("App");
 container.get<ClientHandle>(ClientHandle.name).initialize().then(() => {
     logger.info("Initialized client");
     logger.info(`Logged in as ${container.get<ClientHandle>(ClientHandle.name).getActiveUser().tag}`);
-    container.get<SongSelectionManagedMessage>(SongSelectionManagedMessage.name).initialize(container.get<ClientHandle>(ClientHandle.name).getActiveUser(), []);
     container.get<MessageHandlerService>(MessageHandlerService.name).initialize();
     container.get<MainManagedMessage>(MainManagedMessage.name).initialize();
 }).catch(reason => {

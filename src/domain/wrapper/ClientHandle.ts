@@ -38,7 +38,6 @@ export class ClientHandle extends events.EventEmitter {
         let cleanupFunc = async (code: any) => {
             for (let preDestroyCallback of this.listeners("preDestroy")) {
                 await preDestroyCallback();
-                console.log("Deleted something in preDestroy");
             }
             await this._client.destroy();
             this._logger.info("Destroyed client");
