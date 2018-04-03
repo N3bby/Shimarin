@@ -48,7 +48,8 @@ export class MainManagedMessage extends ManagedMessage {
         });
 
         //Reaction handler
-        this._clientHandle.regiserReactHandler(this._reactionHandler.bind(this));
+        this._clientHandle.on("messageReactionAdd", this._reactionHandler.bind(this));
+        this._clientHandle.on("preDestroy", this.deleteMessage.bind(this));
 
         this.makeMessage();
     }

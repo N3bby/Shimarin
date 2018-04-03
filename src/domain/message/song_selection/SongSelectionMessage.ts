@@ -20,7 +20,9 @@ export class SongSelectionManagedMessage extends ManagedMessage {
 
     private _user: User;
     private _ytSongs: YoutubeSong[];
-    private _registeredReactHandler: boolean = false;
+
+    private _reactionCallback: (messageReaction: MessageReaction, user: User) => void;
+    private _preDestroyCallback: () => void;
 
     get loggerName(): string {
         return SongSelectionManagedMessage.name;
@@ -47,15 +49,20 @@ export class SongSelectionManagedMessage extends ManagedMessage {
         if (ytSongs.length > 5) {
             ytSongs = ytSongs.splice(0, 5);
         }
+        //Set variables
         this._user = user;
         this._ytSongs = ytSongs;
-        if (!this._registeredReactHandler) {
-            this._clientHandle.regiserReactHandler(this._reactionHandle.bind(this));
-            this._registeredReactHandler = true;
-        }
-        this.remakeMessage(SONG_SELECTION_DELETE_DELAY).then(value => {
+
+        //Register callbacks
+        this._reactionCallback = this._reactionHandle.bind(this);
+        this._preDestroyCallback = this.deleteMessage.bind(this);
+        this._clientHandle.on("messageReactionAdd", this._reactionCallback);
+        this._clientHandle.on("preDestroy", this._preDestroyCallback);
+
+        //Make message
+        this.makeMessage(SONG_SELECTION_DELETE_DELAY).then(value => {
             this._initializeReactions().catch(reason => {
-                this._logger.error(`on initialize reaction '${reason}'`);
+                //Rejection ignored
             });
         });
     }
@@ -97,6 +104,8 @@ export class SongSelectionManagedMessage extends ManagedMessage {
         await this._message.react("❌");
     }
 
+    private deleted: boolean = false;
+
     /**
      * Reaction event handler
      * @param {"discord.js".MessageReaction} messageReaction
@@ -105,6 +114,7 @@ export class SongSelectionManagedMessage extends ManagedMessage {
      */
     private _reactionHandle(messageReaction: MessageReaction, user: User) {
         //Only care about reactions to this message from the requesting user
+        if(this.deleted) console.log("Something terrible happened");
         if(this._message === undefined) return;
         if (messageReaction.message.id === this._message.id && user.id === this._user.id) {
             //Check if cancelled
@@ -112,6 +122,7 @@ export class SongSelectionManagedMessage extends ManagedMessage {
             if(messageReaction.emoji.name === cancelIcon) {
                 this._commandOutputService.addOutput(`${user.tag}, you cancelled the song selection`);
                 this.deleteMessage();
+                this.deleted = true;
             }
             //Check if number selected
             let numberIcons: string[] = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣"];
@@ -121,8 +132,13 @@ export class SongSelectionManagedMessage extends ManagedMessage {
                 //Call as new command
                 let requestContext = new RequestContext(user, "play", [selectedSong.link], new Date());
                 this._commandHandlerService.handleCommand(requestContext);
+                //Delete the message
                 this.deleteMessage();
+                this.deleted = true;
             }
+            //Remove listener so we can garbage collect the object
+            this._clientHandle.removeListener("messageReactionAdd", this._reactionCallback);
+            this._clientHandle.removeListener("preDestroy", this._preDestroyCallback);
         }
     }
 
