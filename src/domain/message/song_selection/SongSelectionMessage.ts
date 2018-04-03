@@ -8,11 +8,14 @@ import {CommandOutputService} from "../../service/CommandOutputService";
 import {container} from "../../../inversify/inversify.config";
 import {RequestContext} from "../../model/RequestContext";
 import {CommandHandlerService} from "../../service/CommandHandlerService";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class SongSelectionManagedMessage extends ManagedMessage {
 
-    private _clientHandle: ClientHandle;
+    @inject(CommandOutputService.name)
     private _commandOutputService: CommandOutputService;
+    @inject(CommandHandlerService.name)
     private _commandHandlerService: CommandHandlerService;
 
     private _user: User;
@@ -27,13 +30,6 @@ export class SongSelectionManagedMessage extends ManagedMessage {
         return ManagedMessageType.SONG_SELECTION;
     }
 
-    constructor(channel: TextChannel) {
-        super(channel);
-        this._clientHandle = container.get<ClientHandle>(ClientHandle.name);
-        this._commandOutputService = container.get<CommandOutputService>(CommandOutputService.name);
-        this._commandHandlerService = container.get<CommandHandlerService>(CommandHandlerService.name);
-    }
-
     /**
      * Initializes a new SongSelection message
      * Removes old message
@@ -41,6 +37,8 @@ export class SongSelectionManagedMessage extends ManagedMessage {
      * @param {YoutubeSong[]} list of YoutubeSongs that match the request
      */
     initialize(user?: User, ytSongs?: YoutubeSong[]): void {
+        super.initialize();
+
         //Don't initialize if arguments are undefined
         if (user === undefined || ytSongs === undefined) {
             return;
