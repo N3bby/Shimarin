@@ -28,13 +28,17 @@ container.bind<ManagedMessageService>(ManagedMessageService.name).to(ManagedMess
 container.bind<MusicPlayer>(MusicPlayer.name).to(MusicPlayer);
 
 //Managed Messages
-container.bind<ManagedMessage>(ManagedMessage.name).to(MainManagedMessage);
+container.bind<ManagedMessage>(ManagedMessage.name).to(MainManagedMessage).onActivation(() => {
+    //Binds this ManagedMessage to the actual Singleton instance of MainManagedMessage
+    return container.get<MainManagedMessage>(MainManagedMessage.name);
+});
 container.bind<MainManagedMessage>(MainManagedMessage.name).to(MainManagedMessage);
 
 container.bind<ManagedMessage>(ManagedMessage.name).to(SongSelectionManagedMessage).inTransientScope();
 container.bind<SongSelectionManagedMessage>(SongSelectionManagedMessage.name).to(SongSelectionManagedMessage).inTransientScope();
 
 //Commands
+//Actually there's the same 'double' singleton issue here, but it doesn't matter as long as there isn't any actual initialization logic
 container.bind<Command>(Command.name).to(PingCommand);
 container.bind<PingCommand>(PingCommand.name).to(PingCommand);
 
