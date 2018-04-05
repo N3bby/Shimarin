@@ -102,7 +102,7 @@ Check the 'youtube-search index.d.ts compilation issue' section [here](./known-i
 ### Running Shimarin
 
 #### Unix shell 
-If you're using a unix-based shell, you can just run (from the root directory)   
+If you're using a unix-based shell, you can just run the following command (from the root directory)   
 This should build the typescript code and start the bot.  
 ````
 npm start
