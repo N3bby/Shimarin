@@ -99,6 +99,8 @@ npm install
 **Currently, there is an issue with one of the dependencies not compiling.  
 Check the 'youtube-search index.d.ts compilation issue' section [here](./known-issues.md) to fix this.**
 
+**If you're on linux, you might also need `build-essential`**
+
 ### Running Shimarin
 
 #### Unix shell 
