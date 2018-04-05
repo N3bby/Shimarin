@@ -2,14 +2,21 @@ import {Client, Message, MessageReaction, TextChannel, User, VoiceChannel} from 
 import {DISCORD_TOKEN, MAIN_TEXT_CHANNEL} from "../../properties";
 import {createLogger, Logger} from "../../logging/Logging";
 import {injectable} from "inversify";
+import * as events from "events";
+
+export declare interface ClientHandle {
+
+    on(event: 'message', listener: (message: Message) => void): this;
+    on(event: 'preDestroy', listener: () => void): this;
+    on(event: 'messageReactionAdd', listener: (messageReaction: MessageReaction, user: User) => void): this;
+
+}
 
 @injectable()
-export class ClientHandle {
+export class ClientHandle extends events.EventEmitter {
 
     private _logger: Logger = createLogger(ClientHandle.name);
-
     private _client: Client;
-    private _preDestroyCallbacks: (() => void | Promise<void>)[] = [];
 
     /**
      * Initializes the client
@@ -18,6 +25,7 @@ export class ClientHandle {
     initialize(): Promise<string> {
         this._initProcessEndCallbacks();
         this._client = new Client();
+        this._registerEventDelegates();
         return this._client.login(DISCORD_TOKEN);
     }
 
@@ -28,7 +36,7 @@ export class ClientHandle {
     private _initProcessEndCallbacks(): void {
 
         let cleanupFunc = async (code: any) => {
-            for (let preDestroyCallback of this._preDestroyCallbacks) {
+            for (let preDestroyCallback of this.listeners("preDestroy")) {
                 await preDestroyCallback();
             }
             await this._client.destroy();
@@ -84,29 +92,10 @@ export class ClientHandle {
         }) as VoiceChannel;
     }
 
-    /**
-     * Registers a message handler to the client
-     * @param callback
-     */
-    registerMessageHandler(callback: (message: Message) => void) {
-        this._client.on("message", callback);
-    }
-
-    /**
-     * Registers a handler that is called before a destroy
-     * Can be asynchronous
-     * @param {() => (void | Promise<void>)} callback
-     */
-    registerPreDestroyHandler(callback: () => void | Promise<void>) {
-        this._preDestroyCallbacks.push(callback);
-    }
-
-    /**
-     * Registers a reaction handler
-     * @param {(messageReaction: "discord.js".MessageReaction, user: "discord.js".User) => void} callback
-     */
-    regiserReactHandler(callback: (messageReaction: MessageReaction, user: User) => void) {
-        this._client.on("messageReactionAdd", callback);
+    private _registerEventDelegates() {
+        this._client.on("message", message => this.emit("message", message));
+        this._client.on("preDestroy", () => this.emit("preDestroy"));
+        this._client.on("messageReactionAdd", (messageReaction, user) => this.emit("messageReactionAdd", messageReaction, user));
     }
 
 }

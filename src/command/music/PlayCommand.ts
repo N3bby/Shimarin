@@ -10,6 +10,7 @@ import {SongSelectionManagedMessage} from "../../domain/message/song_selection/S
 import {createLogger, Logger} from "../../logging/Logging";
 import {MusicPlayer} from "../../domain/wrapper/MusicPlayer";
 import {ClientHandle} from "../../domain/wrapper/ClientHandle";
+import {container} from "../../inversify/inversify.config";
 
 @injectable()
 export class PlayCommand extends Command {
@@ -98,7 +99,7 @@ export class PlayCommand extends Command {
             param = requestContext.args.reduce((p1, p2) => p1 + " " + p2);
             try {
                 let songs: YoutubeSong[] = await this._ytSearchApiWrapper.search(param);
-                let songSelectionMessage = (this._managedMessageService.getMessage(ManagedMessageType.SONG_SELECTION) as SongSelectionManagedMessage);
+                let songSelectionMessage: SongSelectionManagedMessage = container.get(SongSelectionManagedMessage.name);
                 songSelectionMessage.initialize(requestContext.user, songs);
                 return new CommandResponse(CommandResponseType.SUCCESS);
             } catch (e) {

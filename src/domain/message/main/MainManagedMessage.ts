@@ -2,7 +2,7 @@ import {ManagedMessage} from "../ManagedMessage";
 import {Emoji, Message, MessageOptions, MessageReaction, RichEmbed, TextChannel, User} from "discord.js";
 import {BOTTOM_MESSAGE_CONVERSATION_WAIT_DELAY, VOLUME_STEP} from "../../../properties";
 import {ManagedMessageType} from "../ManagedMessageType";
-import {inject} from "inversify";
+import {inject, injectable} from "inversify";
 import {ClientHandle} from "../../wrapper/ClientHandle";
 import Timer = NodeJS.Timer;
 import {createLogger, Logger} from "../../../logging/Logging";
@@ -14,10 +14,12 @@ import {secondsToFormat, YoutubeSong} from "../../model/YoutubeSong";
 /**
  * TODO Add current song/queue information + media buttons
  */
+@injectable()
 export class MainManagedMessage extends ManagedMessage {
 
-    private _clientHandle: ClientHandle;
+    @inject(CommandOutputService.name)
     private _commandOutputService: CommandOutputService;
+    @inject(MusicPlayer.name)
     private _musicPlayer: MusicPlayer;
 
     private _timeoutRef: Timer;
@@ -31,10 +33,7 @@ export class MainManagedMessage extends ManagedMessage {
     }
 
     initialize(): void {
-        //Inject ioc objects (because this class doesn't inject them automatically if manually constructed)
-        this._clientHandle = container.get<ClientHandle>(ClientHandle.name);
-        this._commandOutputService = container.get<CommandOutputService>(CommandOutputService.name);
-        this._musicPlayer = container.get<MusicPlayer>(MusicPlayer.name);
+        super.initialize();
 
         //Command output status changes
         this._commandOutputService.addOutputChangedListener(this.updateMessage.bind(this));
@@ -49,7 +48,8 @@ export class MainManagedMessage extends ManagedMessage {
         });
 
         //Reaction handler
-        this._clientHandle.regiserReactHandler(this._reactionHandler.bind(this));
+        this._clientHandle.on("messageReactionAdd", this._reactionHandler.bind(this));
+        this._clientHandle.on("preDestroy", this.deleteMessage.bind(this));
 
         this.makeMessage();
     }

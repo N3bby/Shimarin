@@ -26,7 +26,7 @@ export class MessageHandlerService {
     initialize() {
         this._activeUser = this._clientHandle.getActiveUser();
         this._mainTextChannel = this._clientHandle.getMainTextChannel();
-        this._clientHandle.registerMessageHandler(this._handleMessage.bind(this));
+        this._clientHandle.on("message", this._handleMessage.bind(this));
     }
 
     private _handleMessage(message: Message) {

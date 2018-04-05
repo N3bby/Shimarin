@@ -3,11 +3,17 @@ import {createLogger, Logger} from "../../logging/Logging";
 import {MESSAGE_DELETE_INTERVAL} from "../../properties";
 import {ManagedMessageType} from "./ManagedMessageType";
 import Timer = NodeJS.Timer;
+import {inject, injectable} from "inversify";
+import {ClientHandle} from "../wrapper/ClientHandle";
 
 /**
  * Represents a message that can only have a single instance with some added functionality
  */
+@injectable()
 export abstract class ManagedMessage {
+
+    @inject(ClientHandle.name)
+    protected _clientHandle: ClientHandle;
 
     protected _logger: Logger = createLogger(this.loggerName);
 
@@ -17,10 +23,6 @@ export abstract class ManagedMessage {
     private _deletionTimer: number;
     protected _msUntilDeletion: number;
 
-    constructor(channel: TextChannel) {
-        this._channel = channel;
-    }
-
     abstract get loggerName(): string;
 
     abstract get managedMessageType(): ManagedMessageType;
@@ -28,7 +30,9 @@ export abstract class ManagedMessage {
     /**
      * Initialization method
      */
-    abstract initialize(): void;
+    initialize(): void {
+        this._channel = this._clientHandle.getMainTextChannel();
+    }
 
     /**
      * Called when a message arrives. We can use this to make sure we're always the last one for example

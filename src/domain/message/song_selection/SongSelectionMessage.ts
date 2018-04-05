@@ -8,16 +8,21 @@ import {CommandOutputService} from "../../service/CommandOutputService";
 import {container} from "../../../inversify/inversify.config";
 import {RequestContext} from "../../model/RequestContext";
 import {CommandHandlerService} from "../../service/CommandHandlerService";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class SongSelectionManagedMessage extends ManagedMessage {
 
-    private _clientHandle: ClientHandle;
+    @inject(CommandOutputService.name)
     private _commandOutputService: CommandOutputService;
+    @inject(CommandHandlerService.name)
     private _commandHandlerService: CommandHandlerService;
 
     private _user: User;
     private _ytSongs: YoutubeSong[];
-    private _registeredReactHandler: boolean = false;
+
+    private _reactionCallback: (messageReaction: MessageReaction, user: User) => void;
+    private _preDestroyCallback: () => void;
 
     get loggerName(): string {
         return SongSelectionManagedMessage.name;
@@ -27,13 +32,6 @@ export class SongSelectionManagedMessage extends ManagedMessage {
         return ManagedMessageType.SONG_SELECTION;
     }
 
-    constructor(channel: TextChannel) {
-        super(channel);
-        this._clientHandle = container.get<ClientHandle>(ClientHandle.name);
-        this._commandOutputService = container.get<CommandOutputService>(CommandOutputService.name);
-        this._commandHandlerService = container.get<CommandHandlerService>(CommandHandlerService.name);
-    }
-
     /**
      * Initializes a new SongSelection message
      * Removes old message
@@ -41,6 +39,8 @@ export class SongSelectionManagedMessage extends ManagedMessage {
      * @param {YoutubeSong[]} list of YoutubeSongs that match the request
      */
     initialize(user?: User, ytSongs?: YoutubeSong[]): void {
+        super.initialize();
+
         //Don't initialize if arguments are undefined
         if (user === undefined || ytSongs === undefined) {
             return;
@@ -49,15 +49,20 @@ export class SongSelectionManagedMessage extends ManagedMessage {
         if (ytSongs.length > 5) {
             ytSongs = ytSongs.splice(0, 5);
         }
+        //Set variables
         this._user = user;
         this._ytSongs = ytSongs;
-        if (!this._registeredReactHandler) {
-            this._clientHandle.regiserReactHandler(this._reactionHandle.bind(this));
-            this._registeredReactHandler = true;
-        }
-        this.remakeMessage(SONG_SELECTION_DELETE_DELAY).then(value => {
+
+        //Register callbacks
+        this._reactionCallback = this._reactionHandle.bind(this);
+        this._preDestroyCallback = this.deleteMessage.bind(this);
+        this._clientHandle.on("messageReactionAdd", this._reactionCallback);
+        this._clientHandle.on("preDestroy", this._preDestroyCallback);
+
+        //Make message
+        this.makeMessage(SONG_SELECTION_DELETE_DELAY).then(value => {
             this._initializeReactions().catch(reason => {
-                this._logger.error(`on initialize reaction '${reason}'`);
+                //Rejection ignored
             });
         });
     }
@@ -123,8 +128,12 @@ export class SongSelectionManagedMessage extends ManagedMessage {
                 //Call as new command
                 let requestContext = new RequestContext(user, "play", [selectedSong.link], new Date());
                 this._commandHandlerService.handleCommand(requestContext);
+                //Delete the message
                 this.deleteMessage();
             }
+            //Remove listener so we can garbage collect the object
+            this._clientHandle.removeListener("messageReactionAdd", this._reactionCallback);
+            this._clientHandle.removeListener("preDestroy", this._preDestroyCallback);
         }
     }
 
