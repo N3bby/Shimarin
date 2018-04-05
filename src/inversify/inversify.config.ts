@@ -13,6 +13,7 @@ import {ManagedMessage} from "../domain/message/ManagedMessage";
 import {MainManagedMessage} from "../domain/message/main/MainManagedMessage";
 import {SongSelectionManagedMessage} from "../domain/message/song_selection/SongSelectionMessage";
 import * as events from "events";
+import {VoiceChannelCommand} from "../command/text/VoiceChannelCommand";
 
 const container = new Container({defaultScope: "Singleton"});
 
@@ -44,5 +45,8 @@ container.bind<PingCommand>(PingCommand.name).to(PingCommand);
 
 container.bind<Command>(Command.name).to(PlayCommand);
 container.bind<PlayCommand>(PlayCommand.name).to(PlayCommand);
+
+container.bind<Command>(Command.name).to(VoiceChannelCommand);
+container.bind<VoiceChannelCommand>(VoiceChannelCommand.name).to(VoiceChannelCommand);
 
 export {container};

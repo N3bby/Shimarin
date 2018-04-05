@@ -5,7 +5,6 @@ import {CommandResponse, CommandResponseType} from "../CommandResponse";
 import {YoutubeSearchApiWrapper} from "../../domain/wrapper/YoutubeSearchApiWrapper";
 import {YoutubeSong} from "../../domain/model/YoutubeSong";
 import {ManagedMessageService} from "../../domain/service/ManagedMessageService";
-import {ManagedMessageType} from "../../domain/message/ManagedMessageType";
 import {SongSelectionManagedMessage} from "../../domain/message/song_selection/SongSelectionMessage";
 import {createLogger, Logger} from "../../logging/Logging";
 import {MusicPlayer} from "../../domain/wrapper/MusicPlayer";
@@ -77,6 +76,12 @@ export class PlayCommand extends Command {
                 } catch (e) {
                     this._logger.error(`on voiceChannel join ${e}`);
                     return new CommandResponse(CommandResponseType.ERROR, "I couldn't join your voice channel :(");
+                }
+            } else {
+                //If not in the same channel as the user, reconnect to new channel
+                let voiceChannel = this._clientHandle.getUserVoiceChannel(requestContext.user);
+                if(this._musicPlayer.voiceChannel.id !== voiceChannel.id) {
+                    await this._musicPlayer.connect(voiceChannel);
                 }
             }
 

@@ -97,6 +97,9 @@ export class MusicPlayer {
      */
     connect(channel: VoiceChannel): Promise<void> {
         clearTimeout(this._voiceChannelLeaveTimer);
+        if(this._voiceConnection !== undefined) {
+            this._voiceConnection.disconnect();
+        }
         return channel.join().then(value => {
             this._voiceConnection = value;
         });
