@@ -23,7 +23,7 @@ Go [here](./md/setup-guide.md) for a setup guide
 
 ## Example
 
-![](./md/img/example.PNG)
+![](./md/img/shimarin-example.PNG)
 
 ## Commands
 
