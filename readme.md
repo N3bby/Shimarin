@@ -26,8 +26,9 @@ Go [here](./md/setup-guide.md) for a setup guide
 ![](./md/img/example.PNG)
 
 ## Commands
+
 [Commands](./md/commands.md)
 
 ## Planned Features/Improvements
 
-Can be found [here](./md/planned.md) 
+Any planned features/bugfixes can be found on the [projects page](https://github.com/Razacx/Shimarin/projects)
