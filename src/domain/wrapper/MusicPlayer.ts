@@ -201,22 +201,28 @@ export abstract class MusicPlayer extends events.EventEmitter {
         this.on("start", () => {
             //Stop leave timeout
             clearTimeout(this._voiceChannelLeaveTimer);
+            this._voiceChannelLeaveTimer = undefined;
 
             //Start sending updates
-            this._updateInterval = setInterval(() => {
-                this.emit("update");
-            }, MUSIC_EMBED_UPDATE_INTERVAL);
+            if (!this._updateInterval) {
+                this._updateInterval = setInterval(() => {
+                    this.emit("update");
+                }, MUSIC_EMBED_UPDATE_INTERVAL);
+            }
         });
 
         this.on("stop", () => {
             //Leave voiceChannel in MUSIC_END_LEAVE_DELAY milliseconds
-            this._voiceChannelLeaveTimer = setTimeout(() => {
-                this._voiceConnection.disconnect();
-                this._voiceConnection = undefined;
-            }, MUSIC_END_LEAVE_DELAY);
+            if(!this._voiceChannelLeaveTimer) {
+                this._voiceChannelLeaveTimer = setTimeout(() => {
+                    this._voiceConnection.disconnect();
+                    this._voiceConnection = undefined;
+                }, MUSIC_END_LEAVE_DELAY);
+            }
 
             //Stop sending updates
             clearTimeout(this._updateInterval);
+            this._updateInterval = undefined;
         });
     }
 
