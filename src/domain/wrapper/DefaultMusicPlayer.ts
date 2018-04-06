@@ -3,6 +3,10 @@ import {MusicPlayer} from "./MusicPlayer";
 import {YoutubeSong} from "../model/YoutubeSong";
 import {createLogger, Logger} from "../../logging/Logging";
 
+/**
+ * MusicPlayer that works with a queue
+ * Can add to the queue, advance to the next song or stop playing (and clear the queue)
+ */
 @injectable()
 export class DefaultMusicPlayer extends MusicPlayer {
 
@@ -13,11 +17,19 @@ export class DefaultMusicPlayer extends MusicPlayer {
         super();
     }
 
+    /**
+     * Get a copy of the queue
+     * @returns {YoutubeSong[]}
+     */
     getQueue(): YoutubeSong[] {
         //Returns a copy
         return this._queue.slice();
     }
 
+    /**
+     * Queue a song, starts playing if nothing is currently playing
+     * @param {YoutubeSong} song
+     */
     queue(song: YoutubeSong): void {
         this._queue.push(song);
         if (!this.isActive) {
@@ -27,6 +39,9 @@ export class DefaultMusicPlayer extends MusicPlayer {
         }
     }
 
+    /**
+     * Advance to the next song in the queue. Will stop if no more songs are available
+     */
     next(): void {
         //Stop playing current song
         if (this._streamDispatcherIsPlaying) {
@@ -57,6 +72,9 @@ export class DefaultMusicPlayer extends MusicPlayer {
         this.emit("update")
     }
 
+    /**
+     * Clears the queue and stops playing the current song
+     */
     stop(): void {
         this._queue = [];
         if(this._streamDispatcherIsPlaying) {
