@@ -129,7 +129,6 @@ export class MusicPlayer {
     next() {
         //Destroy current streamDispatcher (if it exists)
         if(this._isPlaying) {
-            this._streamDispatcher.stream.destroy();
             this._streamDispatcher.end("forced");
         }
 
@@ -172,7 +171,6 @@ export class MusicPlayer {
         this._queue = [];
         //Stop running stream
         if(this._isPlaying) {
-            this._streamDispatcher.stream.destroy();
             this._streamDispatcher.end("forced");
         }
         this._fireQueueEndedEvent();
