@@ -14,6 +14,7 @@ import {MainManagedMessage} from "../domain/message/main/MainManagedMessage";
 import {SongSelectionManagedMessage} from "../domain/message/song_selection/SongSelectionMessage";
 import * as events from "events";
 import {VoiceChannelCommand} from "../command/text/VoiceChannelCommand";
+import {DefaultMusicPlayer} from "../domain/wrapper/DefaultMusicPlayer";
 
 const container = new Container({defaultScope: "Singleton"});
 
@@ -26,7 +27,7 @@ container.bind<CommandOutputService>(CommandOutputService.name).to(CommandOutput
 container.bind<CommandHandlerService>(CommandHandlerService.name).to(CommandHandlerService);
 container.bind<MessageHandlerService>(MessageHandlerService.name).to(MessageHandlerService);
 container.bind<ManagedMessageService>(ManagedMessageService.name).to(ManagedMessageService);
-container.bind<MusicPlayer>(MusicPlayer.name).to(MusicPlayer);
+container.bind<MusicPlayer>(MusicPlayer.name).to(DefaultMusicPlayer);
 
 //Managed Messages
 container.bind<ManagedMessage>(ManagedMessage.name).to(MainManagedMessage).onActivation(() => {

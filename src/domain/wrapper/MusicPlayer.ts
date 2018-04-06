@@ -1,223 +1,223 @@
 import {StreamDispatcher, VoiceChannel, VoiceConnection} from "discord.js";
-import {createLogger, Logger} from "../../logging/Logging";
 import {YoutubeSong} from "../model/YoutubeSong";
+import {inject, injectable} from "inversify";
+import * as events from "events";
+import {ClientHandle} from "./ClientHandle";
 import Timer = NodeJS.Timer;
-import {injectable} from "inversify";
-import {MUSIC_END_LEAVE_DELAY, VOICE_CONNECTION_PASSES} from "../../properties";
+import {MUSIC_EMBED_UPDATE_INTERVAL, MUSIC_END_LEAVE_DELAY, VOICE_CONNECTION_PASSES} from "../../properties";
+
 const ytdl = require('ytdl-core');
-const ytas = require('youtube-audio-stream');
+
+export declare interface MusicPlayer {
+
+    on(event: "start", listener: () => void): this;
+
+    on(event: "update", listener: () => void): this;
+
+    on(event: "stop", listener: () => void): this;
+
+}
 
 /**
- * Wrapper for queue/stream/voice related logic
- * TODO Rewrite this mess maybe
+ * Abstract MusicPlayer class
+ * Handlers some management logic (sending events (partially), timeouts, intervals and recurring discord.js calls)
  */
 @injectable()
-export class MusicPlayer {
+export abstract class MusicPlayer extends events.EventEmitter {
 
-    private _logger: Logger = createLogger(MusicPlayer.name);
+    @inject(ClientHandle.name)
+    protected _clientHandle: ClientHandle;
 
-    private _voiceConnection: VoiceConnection;
-    private _streamDispatcher: StreamDispatcher;
+    /**
+     * The voiceConnection that is currently in use
+     */
+    protected _voiceConnection: VoiceConnection;
 
-    private _currentSong: YoutubeSong;
-    private _queue: YoutubeSong[] = [];
-    private _isPlaying: boolean = false;
+    /**
+     * The streamDispatcher that is currently in use
+     */
+    protected _streamDispatcher: StreamDispatcher;
+
+    /**
+     * If the streamDispatcher is currently playing a song
+     * Needs to be set manually because as far as I know there's no way to know this...
+     */
+    protected _streamDispatcherIsPlaying: boolean = false;
+
+    /**
+     * The song that is currently playing
+     */
+    protected _currentSong: YoutubeSong;
+
     private _volume: number = 0.1;
+    private _isActive: boolean = false;
 
     private _updateInterval: Timer;
-
     private _voiceChannelLeaveTimer: Timer;
 
+    protected constructor() {
+        super();
+        this._registerEventHandlers();
+    }
+
+    /**
+     * Gets the volume
+     * @returns {number}
+     */
     get volume(): number {
         return this._volume;
     }
 
+    /**
+     * Sets the volume
+     * @param {number} value
+     */
     set volume(value: number) {
-        //Constrain between 0 and 1
-        if(value < 0) value = 0;
-        if(value > 1) value = 1;
+        if (value < 0) value = 0;
+        if (value > 1) value = 1;
         this._volume = value;
-        //Also set streamDispatcher value if a song is currently playing
-        if(this._streamDispatcher !== undefined) {
+        if (this._streamDispatcher)
             this._streamDispatcher.setVolumeLogarithmic(value);
+    }
+
+    /**
+     * Gets whether the musicPlayer is active
+     * @returns {boolean}
+     */
+    get isActive(): boolean {
+        return this._isActive;
+    }
+
+    /**
+     * Sets whether the musicPlayer is active (also fires off events)
+     * Do not edit this value from outside.
+     * Can't make getters and setters for properties have different visibilities in typescript ¯\_(ツ)_/¯
+     * @param {boolean} value
+     */
+    set isActive(value: boolean) {
+        if (value && !this._isActive) {
+            this.emit("start");
+        } else if (!value && this._isActive) {
+            this.emit("stop");
+        }
+        this._isActive = value;
+    }
+
+    /**
+     * Checks whether the musicPlayer is connected to a voiceChannel
+     * @returns {boolean}
+     */
+    get isConnected(): boolean {
+        if (this._voiceConnection) {
+            //0 = READY | 3 = IDLE
+            return this._voiceConnection.status === 0 || this._voiceConnection.status === 3;
         }
     }
 
     /**
-     * Move changed to isPlaying through this property setter so that the update timer (for stream timeline) can be updated
-     * correctly
-     * @param {boolean} value
+     * Gets the voiceChannel that the musicPlayer is connected to
+     * @returns {"discord.js".VoiceChannel}
      */
-    private set isPlaying(value: boolean) {
-        if(!value) {
-            //Stop update interval
-            clearInterval(this._updateInterval);
-        } else {
-            //Start update interval
-            this._updateInterval = setInterval(() => {
-                this._fireStatusChangedEvent()
-            }, 5000);
-        }
-        this._isPlaying = value;
-    }
-
-    //Named differently because typescript doesn't allow getter/setter different visibilities...
-    public get playing(): boolean {
-        return this._isPlaying;
-    }
-
-    get isConnected(): boolean {
-        return this._voiceConnection !== undefined &&
-            (this._voiceConnection.status === 0 || //READY
-                this._voiceConnection.status === 3); //IDLE
-    }
-
     get voiceChannel(): VoiceChannel {
-        if(this._voiceConnection !== undefined) {
-            return this._voiceConnection.channel;
-        }
-        return undefined;
+        return this._voiceConnection ? this._voiceConnection.channel : undefined;
     }
 
+    /**
+     * Gets the current song that the musicPlayer is playing
+     * @returns {YoutubeSong}
+     */
     get currentSong(): YoutubeSong {
         return this._currentSong;
     }
 
+    /**
+     * Gets the current time of the song (in seconds)
+     * @returns {number}
+     */
     get currentTime(): number {
-        if(this._streamDispatcher !== undefined) {
-            return this._streamDispatcher.time/1000;
-        }
-        return 0;
+        return this._streamDispatcher ? this._streamDispatcher.time / 1000 : 0;
     }
 
     /**
-     * Connects to a given voice channel. Returns a promise that resolves when done
+     * Connects the musicPlayer to a given voiceChannel
      * @param {"discord.js".VoiceChannel} channel
      * @returns {Promise<void>}
      */
     connect(channel: VoiceChannel): Promise<void> {
         clearTimeout(this._voiceChannelLeaveTimer);
-        if(this._voiceConnection !== undefined) {
+        if (this._voiceConnection) {
             this._voiceConnection.disconnect();
+            this._voiceConnection = undefined;
         }
         return channel.join().then(value => {
             this._voiceConnection = value;
-        });
+        })
     }
 
     /**
-     * Queues a song and starts playing if nothing is currently playing
-     * @param {YoutubeSong} youtubeSong
+     * Queue a song
+     * @param {YoutubeSong} song
      */
-    queue(youtubeSong: YoutubeSong) {
-        clearTimeout(this._voiceChannelLeaveTimer);
-        //Push song into queue
-        this._queue.push(youtubeSong);
-        //Start playing if nothing is playing atm
-        if(!this._isPlaying) {
-            this.next();
-        } else {
-            this._fireStatusChangedEvent()
-        }
+    abstract queue(song: YoutubeSong): void;
+
+    /**
+     * Advance to the next song
+     */
+    abstract next(): void;
+
+    /**
+     * Stop playing songs
+     */
+    abstract stop(): void;
+
+    /**
+     * Creates a new streamDispatcher in which the given song starts playing
+     * Returns the created streamDispatcher
+     * @param {YoutubeSong} song
+     * @returns {"discord.js".StreamDispatcher}
+     * @private
+     */
+    protected _playStream(song: YoutubeSong): StreamDispatcher {
+        let stream = ytdl(song.link, {filter: "audioonly"});
+        let streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: VOICE_CONNECTION_PASSES});
+        streamDispatcher.setVolumeLogarithmic(this._volume);
+        return streamDispatcher;
     }
 
     /**
-     * Stops current song (if any)
-     * Starts playing next song in queue (and removes it from the queue)
-     * Also registers handlers so subsequent queued items will play automatically
+     * Cleans values of the streamDispatcher
+     * @private
      */
-    next() {
-        //Destroy current streamDispatcher (if it exists)
-        if(this._isPlaying) {
-            this._streamDispatcher.end("forced");
-        }
-
-        //Fetch song, return if queue is empty
-        this._currentSong = this._queue.shift();
-        if(this._currentSong === undefined) {
-            this._clean();
-            this._fireQueueEndedEvent();
-            return;
-        }
-
-        //Get stream (ytdl) and play it
-        // let stream = ytdl(this._currentSong.link, {filter: "audioonly", quality: "highestaudio"});
-        let stream = ytas(this._currentSong.link);
-        this._streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: VOICE_CONNECTION_PASSES});
-        this._streamDispatcher.setVolumeLogarithmic(this._volume);
-
-        //Register events
-        this._streamDispatcher.on("end", reason => {
-            this._clean();
-            //Prevents automatically advancing queue when we want to end the streamDispatcher manually
-            if(reason === "forced") return;
-            this.next();
-        });
-        this._streamDispatcher.on("error", err => {
-            this._clean();
-            this._logger.error(`on stream '${err}'`);
-        });
-
-        //Set playing to true
-        this.isPlaying = true;
-        this._fireStatusChangedEvent();
-    }
-
-    /**
-     * Clears queue and stops current song
-     */
-    stop() {
-        //Clear queue
-        this._queue = [];
-        //Stop running stream
-        if(this._isPlaying) {
-            this._streamDispatcher.end("forced");
-        }
-        this._fireQueueEndedEvent();
-    }
-
-    private _clean() {
-        this.isPlaying = false;
-        this._currentSong = undefined;
+    protected _cleanStreamDispatcher() {
+        this._streamDispatcherIsPlaying = false;
         this._streamDispatcher = undefined;
     }
 
     /**
-     * Returns a copy of the queue
-     * @returns {YoutubeSong[]}
+     * Registers default handlers for MusicPlayer events
+     * @private
      */
-    getQueue(): YoutubeSong[] {
-        return this._queue.slice();
-    }
+    private _registerEventHandlers() {
+        this.on("start", () => {
+            //Stop leave timeout
+            clearTimeout(this._voiceChannelLeaveTimer);
 
-    //Events --------------------------------------------------
+            //Start sending updates
+            this._updateInterval = setInterval(() => {
+                this.emit("update");
+            }, MUSIC_EMBED_UPDATE_INTERVAL);
+        });
 
-    private _statusChangedCallbacks: (() => void)[] = [];
+        this.on("stop", () => {
+            //Leave voiceChannel in MUSIC_END_LEAVE_DELAY milliseconds
+            this._voiceChannelLeaveTimer = setTimeout(() => {
+                this._voiceConnection.disconnect();
+                this._voiceConnection = undefined;
+            }, MUSIC_END_LEAVE_DELAY);
 
-    registerStatusChangedHandler(callback: () => void) {
-        this._statusChangedCallbacks.push(callback);
-    }
-
-    private _fireStatusChangedEvent() {
-        for (let callback of this._statusChangedCallbacks) {
-            callback();
-        }
-    }
-
-    private _queueEndedCallbacks: (() => void)[] = [];
-
-    registerQueueEndedHandler(callback: () => void) {
-        this._queueEndedCallbacks.push(callback);
-    }
-
-    private _fireQueueEndedEvent() {
-        this._voiceChannelLeaveTimer = setTimeout(() => {
-            this._voiceConnection.disconnect();
-            this._voiceConnection = undefined;
-        }, MUSIC_END_LEAVE_DELAY);
-        for(let callback of this._queueEndedCallbacks) {
-            callback();
-        }
+            //Stop sending updates
+            clearTimeout(this._updateInterval);
+        });
     }
 
 }

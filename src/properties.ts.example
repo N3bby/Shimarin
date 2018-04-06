@@ -27,16 +27,16 @@ export const MESSAGE_DELETE_INTERVAL: number = 5000;
 export const BOTTOM_MESSAGE_CONVERSATION_WAIT_DELAY: number = 10000;
 
 //Milliseconds after which a command output message is deleted
-export const COMMAND_OUTPUT_DELTE_DELAY: number = 15000;
+export const COMMAND_OUTPUT_DELETE_DELAY: number = 25000;
 
 //Google api key used for youtube search results
 export const YOUTUBE_DATA_API_KEY: string = "CHANGE THIS";
 
 //Delay after which a song selection message times out (and is removed)
-export const SONG_SELECTION_DELETE_DELAY: number = 20000;
+export const SONG_SELECTION_DELETE_DELAY: number = 25000;
 
 //Amount with which to change the volume when a volume reaction is used
-export const VOLUME_STEP: number = 0.1;
+export const VOLUME_STEP: number = 0.05;
 
 //Amount of milliseconds after which to leave the voice channel when the queue becomes empty
 //Default: 900,000ms -> 15 minutes
@@ -44,4 +44,7 @@ export const MUSIC_END_LEAVE_DELAY: number = 900000;
 
 //Amount of times packets are send over the voice connection (to reduce packet loss)
 //More info: https://github.com/discordjs/discord.js/blob/master/docs/topics/voice.md
-export const VOICE_CONNECTION_PASSES: number = 2;
+export const VOICE_CONNECTION_PASSES: number = 3;
+
+//Amount of milliseconds that the music embed will update at (mainly for timestamp)
+export const MUSIC_EMBED_UPDATE_INTERVAL: number = 5000;

@@ -10,6 +10,7 @@ import {CommandOutputService} from "../../service/CommandOutputService";
 import {container} from "../../../inversify/inversify.config";
 import {MusicPlayer} from "../../wrapper/MusicPlayer";
 import {secondsToFormat, YoutubeSong} from "../../model/YoutubeSong";
+import {DefaultMusicPlayer} from "../../wrapper/DefaultMusicPlayer";
 
 /**
  * TODO Add current song/queue information + media buttons
@@ -39,13 +40,8 @@ export class MainManagedMessage extends ManagedMessage {
         this._commandOutputService.addOutputChangedListener(this.updateMessage.bind(this));
 
         //Message updates when music status changes
-        //Calling with function.bind(this) doesn't work here?
-        this._musicPlayer.registerStatusChangedHandler(() => {
-            this.updateMessage();
-        });
-        this._musicPlayer.registerQueueEndedHandler(() => {
-            this.remakeMessage();
-        });
+        this._musicPlayer.on("update", this.updateMessage.bind(this));
+        this._musicPlayer.on("stop", this.remakeMessage.bind(this));
 
         //Reaction handler
         this._clientHandle.on("messageReactionAdd", this._reactionHandler.bind(this));
@@ -78,14 +74,18 @@ export class MainManagedMessage extends ManagedMessage {
         content = this._commandOutputService.output.reduce((previousValue, currentValue) => previousValue + "\n" + currentValue, "");
         content += "\n**Enter a command to make me do something~**";
 
-        if (this._musicPlayer.playing) {
-            options.embed = this._buildMusicEmbed();
+        if (this._musicPlayer.isActive) {
+            if(this._musicPlayer instanceof DefaultMusicPlayer) {
+                options.embed = this._buildMusicEmbedForDefault();
+            } else {
+                throw Error("No implementation for current MusicPlayer");
+            }
         }
 
         return {content: content, options: options};
     }
 
-    private _buildMusicEmbed(): RichEmbed {
+    private _buildMusicEmbedForDefault(): RichEmbed {
 
         let embed: RichEmbed = new RichEmbed();
 
@@ -94,7 +94,7 @@ export class MainManagedMessage extends ManagedMessage {
         embed.addField("Currently playing", `${this._musicPlayer.currentSong.title}\n${this._buildTimeIndicator()} ${time} 🔊 ${(this._musicPlayer.volume * 100).toPrecision(3)}%`);
 
         //In queue
-        let queue: YoutubeSong[] = this._musicPlayer.getQueue();
+        let queue: YoutubeSong[] = (this._musicPlayer as DefaultMusicPlayer).getQueue();
         if (queue.length > 0) {
             //Format first two songs in queue
             let firstTwoSongs: YoutubeSong[] = queue.slice(0, 2);
@@ -148,7 +148,7 @@ export class MainManagedMessage extends ManagedMessage {
                 await this._message.react(reaction);
             }
         };
-        if (this._musicPlayer.playing) {
+        if (this._musicPlayer.isActive) {
             try {
                 await initReactionIfNeeded("⏹");
                 await initReactionIfNeeded("⏩");
@@ -165,7 +165,7 @@ export class MainManagedMessage extends ManagedMessage {
         if (this._message === undefined) return;
         if (messageReaction.message.id === this._message.id && user.id !== this._clientHandle.getActiveUser().id) {
             //Music reactions
-            if (this._musicPlayer.playing) {
+            if (this._musicPlayer.isActive) {
                 //TODO Make this fire commands maybe? -> Authorization possible
                 switch (messageReaction.emoji.name) {
                     case "⏹":

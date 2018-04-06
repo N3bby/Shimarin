@@ -1,4 +1,4 @@
-import {COMMAND_OUTPUT_DELTE_DELAY} from "../../properties";
+import {COMMAND_OUTPUT_DELETE_DELAY} from "../../properties";
 import {createLogger, Logger} from "../../logging/Logging";
 import {injectable} from "inversify";
 
@@ -26,7 +26,7 @@ export class CommandOutputService {
         setTimeout(() => {
             this._output.shift();
             this._fireChangedEvent();
-        }, COMMAND_OUTPUT_DELTE_DELAY);
+        }, COMMAND_OUTPUT_DELETE_DELAY);
     }
 
     /**
