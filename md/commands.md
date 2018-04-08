@@ -7,7 +7,7 @@ or search results for given keywords.
 
 ##### Syntax  
 ```
-?play &lt;url|keywords&gt;
+?play <url|keywords>
 ```
 
 ### Clear
@@ -22,7 +22,7 @@ The id for a channel or user can be gotten by right-clicking them in the discord
 
 ##### Syntax   
 ```
-clear &lt;channel_id&gt; &lt;'matching'|'user'&gt; &lt;messages_to_search&gt; &lt;regex|user_id&gt; 
+clear <channel_id> <'matching'|'user'> <messages_to_search> <regex|user_id>
 ```
 
 ##### Examples  
