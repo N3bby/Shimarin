@@ -15,6 +15,7 @@ import {SongSelectionManagedMessage} from "../domain/message/song_selection/Song
 import * as events from "events";
 import {VoiceChannelCommand} from "../command/text/VoiceChannelCommand";
 import {DefaultMusicPlayer} from "../domain/wrapper/DefaultMusicPlayer";
+import {ClearMessagesCommand} from "../command/text/ClearMessagesCommand";
 
 const container = new Container({defaultScope: "Singleton"});
 
@@ -40,14 +41,9 @@ container.bind<ManagedMessage>(ManagedMessage.name).to(SongSelectionManagedMessa
 container.bind<SongSelectionManagedMessage>(SongSelectionManagedMessage.name).to(SongSelectionManagedMessage).inTransientScope();
 
 //Commands
-//Actually there's the same 'double' singleton issue here, but it doesn't matter as long as there isn't any actual initialization logic
 container.bind<Command>(Command.name).to(PingCommand);
-container.bind<PingCommand>(PingCommand.name).to(PingCommand);
-
 container.bind<Command>(Command.name).to(PlayCommand);
-container.bind<PlayCommand>(PlayCommand.name).to(PlayCommand);
-
 container.bind<Command>(Command.name).to(VoiceChannelCommand);
-container.bind<VoiceChannelCommand>(VoiceChannelCommand.name).to(VoiceChannelCommand);
+container.bind<Command>(Command.name).to(ClearMessagesCommand);
 
 export {container};

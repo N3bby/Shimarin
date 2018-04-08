@@ -11,7 +11,7 @@ export class VoiceChannelCommand extends Command{
     @inject(ClientHandle.name)
     private _clientHandle: ClientHandle;
 
-    get log_name(): string {
+    getLogName(): string {
         return VoiceChannelCommand.name;
     }
 

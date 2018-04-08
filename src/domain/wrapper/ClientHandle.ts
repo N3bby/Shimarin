@@ -1,4 +1,14 @@
-import {Client, Message, MessageReaction, TextChannel, User, VoiceChannel} from "discord.js";
+import {
+    Channel,
+    ChannelLogsQueryOptions,
+    Client, Collection,
+    Message,
+    MessageReaction,
+    Snowflake,
+    TextChannel,
+    User,
+    VoiceChannel
+} from "discord.js";
 import {DISCORD_TOKEN, MAIN_TEXT_CHANNEL} from "../../properties";
 import {createLogger, Logger} from "../../logging/Logging";
 import {injectable} from "inversify";
@@ -90,6 +100,69 @@ export class ClientHandle extends events.EventEmitter {
                 return voiceChannel.members.find(member => member.id === user.id) !== null;
             }
         }) as VoiceChannel;
+    }
+
+    /**
+     * Gets a user by it's id, returns 'undefined' if not found
+     * @param {"discord.js".Snowflake} id
+     * @returns {"discord.js".User}
+     */
+    getUserById(id: Snowflake): User {
+        return this._client.users.get(id);
+    }
+
+    /**
+     * Gets a TextChannel by it's id. If the channel id does not exist or it is not a text channel, returns undefined
+     * @param {"discord.js".Snowflake} id
+     * @returns {"discord.js".TextChannel}
+     */
+    getTextChannelById(id: Snowflake): TextChannel {
+        let channel: Channel = this._client.channels.get(id);
+        if(channel.type === "text") {
+            return channel as TextChannel
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Gets the last n messages in a TextChannel
+     * @param {"discord.js".TextChannel} channel
+     * @param {number} amount
+     * @returns {Promise<"discord.js".Message[]>}
+     * @private
+     */
+    async getLastNMessages(channel: TextChannel, amount: number): Promise<Message[]> {
+
+        let clamp: (value: number, min: number, max: number) => number = (value: number, min: number, max: number) => {
+            if(value < min) return min;
+            if(value > max) return max;
+            return value;
+        };
+
+        let result: Message[] = [];
+        let before: Snowflake = undefined;
+
+        while (amount > 0) {
+            //Get messages
+            let options: ChannelLogsQueryOptions = {limit: clamp(amount, 0, 100), before: before};
+            let messages: Collection<Snowflake, Message> = await channel.fetchMessages(options);
+
+            //Add to result
+            result = result.concat(messages.array());
+
+            //If we can't fetch more messages (end of chat log), stop
+            if(messages.size < clamp(amount, 0, 100)) {
+                break;
+            }
+
+            //Decrement amount we still need to do and set before id to oldest message we got
+            amount -= messages.size;
+            before = messages.array()[messages.size - 1].id;
+        }
+
+        return result;
+
     }
 
     private _registerEventDelegates() {

@@ -6,7 +6,7 @@ import {injectable} from "inversify";
 @injectable()
 export class PingCommand extends Command {
 
-    get log_name(): string {
+    getLogName(): string {
         return PingCommand.name;
     }
 

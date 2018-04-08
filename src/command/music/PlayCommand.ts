@@ -14,8 +14,6 @@ import {container} from "../../inversify/inversify.config";
 @injectable()
 export class PlayCommand extends Command {
 
-    private _logger: Logger = createLogger(PlayCommand.name);
-
     @inject(ManagedMessageService.name)
     private _managedMessageService: ManagedMessageService;
 
@@ -27,7 +25,7 @@ export class PlayCommand extends Command {
 
     private _ytSearchApiWrapper: YoutubeSearchApiWrapper = new YoutubeSearchApiWrapper();
 
-    get log_name(): string {
+    getLogName(): string {
         return PlayCommand.name;
     }
 

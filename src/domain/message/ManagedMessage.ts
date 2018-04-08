@@ -27,6 +27,10 @@ export abstract class ManagedMessage {
 
     abstract get managedMessageType(): ManagedMessageType;
 
+    get message(): Message {
+        return this._message;
+    }
+
     /**
      * Initialization method
      */

@@ -1,6 +1,7 @@
 import {RequestContext} from "../domain/model/RequestContext";
 import {CommandResponse, CommandResponseType} from "./CommandResponse";
 import {injectable} from "inversify";
+import {createLogger, Logger} from "../logging/Logging";
 
 /**
  * Base class for commands
@@ -8,11 +9,18 @@ import {injectable} from "inversify";
 @injectable()
 export abstract class Command {
 
+    protected _logger: Logger;
+
+    // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
+    constructor() {
+        this._logger = createLogger(this.getLogName());
+    }
+
     /**
      * The name identifier used for logging
      * @returns {string}
      */
-    abstract get log_name(): string;
+    abstract getLogName(): string;
 
     /**
      * The name of the command
@@ -58,7 +66,7 @@ export abstract class Command {
      * @param {RequestContext} requestContext
      * @returns {CommandResponse}
      */
-    async abstract execute(requestContext:RequestContext): Promise<CommandResponse>;
+    abstract async execute(requestContext: RequestContext): Promise<CommandResponse>;
 
     /**
      * Validates, authorizes and executes the request/command
@@ -67,17 +75,24 @@ export abstract class Command {
      */
     async validateAuthorizeAndExecute(requestContext: RequestContext): Promise<CommandResponse> {
 
-        let validationResponse: CommandResponse = this.validate(requestContext);
-        if(validationResponse.type === CommandResponseType.ERROR) {
-            return validationResponse;
-        }
+        try {
 
-        let authorizationResponse: CommandResponse = this.authorize(requestContext);
-        if(authorizationResponse.type === CommandResponseType.ERROR) {
-            return authorizationResponse;
-        }
+            let validationResponse: CommandResponse = this.validate(requestContext);
+            if (validationResponse.type === CommandResponseType.ERROR) {
+                return validationResponse;
+            }
 
-        return this.execute(requestContext);
+            let authorizationResponse: CommandResponse = this.authorize(requestContext);
+            if (authorizationResponse.type === CommandResponseType.ERROR) {
+                return authorizationResponse;
+            }
+
+            return this.execute(requestContext);
+
+        } catch (e) {
+            this._logger.error(`on executing command '${e}'`);
+            return new CommandResponse(CommandResponseType.ERROR, "something went wrong while executing your command");
+        }
 
     }
 
