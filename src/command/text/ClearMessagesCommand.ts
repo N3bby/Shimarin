@@ -4,7 +4,7 @@ import {CommandResponse, CommandResponseType} from "../CommandResponse";
 import {OWNER_ID} from "../../properties";
 import {ClientHandle} from "../../domain/wrapper/ClientHandle";
 import {inject} from "inversify";
-import {ChannelLogsQueryOptions, Collection, Message, Snowflake, TextChannel} from "discord.js";
+import {Message} from "discord.js";
 import {MainManagedMessage} from "../../domain/message/main/MainManagedMessage";
 import {CommandOutputService} from "../../domain/service/CommandOutputService";
 
