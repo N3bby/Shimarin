@@ -5,7 +5,8 @@
   "main": "./target/app.js",
   "scripts": {
     "build": "rm -rf ./target && tsc",
-    "start": "npm run build && node ./target/app.js"
+    "start": "npm run build && node ./target/app.js",
+    "test": "mocha -r ts-node/register ./test/**/*.spec.ts"
   },
   "author": "",
   "license": "ISC",
@@ -21,5 +22,8 @@
     "youtube-audio-stream": "^0.2.0",
     "youtube-search": "^1.1.0",
     "ytdl-core": "^0.20.2"
+  },
+  "devDependencies": {
+    "typescript": "^2.8.1"
   }
 }
