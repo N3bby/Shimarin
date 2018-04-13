@@ -169,6 +169,7 @@ export class ClientHandle extends events.EventEmitter {
         this._client.on("message", message => this.emit("message", message));
         this._client.on("preDestroy", () => this.emit("preDestroy"));
         this._client.on("messageReactionAdd", (messageReaction, user) => this.emit("messageReactionAdd", messageReaction, user));
+        this._client.on("error", error => {this._logger.error(`A client error occurred: '${error}'`)});
     }
 
 }
