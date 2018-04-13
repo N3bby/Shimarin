@@ -22,8 +22,5 @@
     "youtube-audio-stream": "^0.2.0",
     "youtube-search": "^1.1.0",
     "ytdl-core": "^0.20.2"
-  },
-  "devDependencies": {
-    "typescript": "^2.8.1"
   }
 }
