@@ -5,6 +5,7 @@ import * as events from "events";
 import {ClientHandle} from "./ClientHandle";
 import Timer = NodeJS.Timer;
 import {MUSIC_EMBED_UPDATE_INTERVAL, MUSIC_END_LEAVE_DELAY, VOICE_CONNECTION_PASSES} from "../../properties";
+import {CommandOutputService} from "../service/CommandOutputService";
 
 const ytdl = require('ytdl-core');
 
@@ -27,6 +28,9 @@ export abstract class MusicPlayer extends events.EventEmitter {
 
     @inject(ClientHandle.name)
     protected _clientHandle: ClientHandle;
+
+    @inject(CommandOutputService.name)
+    protected _commandOutputService: CommandOutputService;
 
     /**
      * The voiceConnection that is currently in use
@@ -178,7 +182,13 @@ export abstract class MusicPlayer extends events.EventEmitter {
      * @private
      */
     protected _playStream(song: YoutubeSong): StreamDispatcher {
-        let stream = ytdl(song.link, {filter: "audioonly"});
+        let stream: any;
+        try {
+            stream = ytdl(song.link, {filter: "audioonly"});
+        } catch (e) {
+            this._commandOutputService.addOutput(`Problem playing song '${song.title}': '${e}'`);
+            return;
+        }
         let streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: VOICE_CONNECTION_PASSES});
         streamDispatcher.setVolumeLogarithmic(this._volume);
         return streamDispatcher;
