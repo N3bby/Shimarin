@@ -6,6 +6,8 @@ import {ClientHandle} from "./ClientHandle";
 import Timer = NodeJS.Timer;
 import {MUSIC_EMBED_UPDATE_INTERVAL, MUSIC_END_LEAVE_DELAY, VOICE_CONNECTION_PASSES} from "../../properties";
 import {CommandOutputService} from "../service/CommandOutputService";
+import {createLogger, Logger} from "../../logging/Logging";
+import {error} from "util";
 
 const ytdl = require('ytdl-core');
 
@@ -25,6 +27,8 @@ export declare interface MusicPlayer {
  */
 @injectable()
 export abstract class MusicPlayer extends events.EventEmitter {
+
+    private _logger: Logger = createLogger(MusicPlayer.name);
 
     @inject(ClientHandle.name)
     protected _clientHandle: ClientHandle;
@@ -186,10 +190,17 @@ export abstract class MusicPlayer extends events.EventEmitter {
         try {
             stream = ytdl(song.link, {filter: "audioonly"});
         } catch (e) {
-            this._commandOutputService.addOutput(`Problem playing song '${song.title}': '${e}'`);
+            let errorMessage: string = `Problem getting stream for song '${song.title}': '${e}'`;
+            this._logger.error(errorMessage);
+            this._commandOutputService.addOutput(errorMessage);
             return;
         }
         let streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: VOICE_CONNECTION_PASSES});
+        streamDispatcher.on("error", err => {
+            let errorMesssage: string = `Problem while playing stream '${song.title}': '${err}'`;
+            this._logger.error(errorMesssage);
+            this._commandOutputService.addOutput(errorMesssage);
+        });
         streamDispatcher.setVolumeLogarithmic(this._volume);
         return streamDispatcher;
     }
