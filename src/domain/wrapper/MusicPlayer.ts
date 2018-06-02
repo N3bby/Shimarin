@@ -28,7 +28,7 @@ export declare interface MusicPlayer {
 @injectable()
 export abstract class MusicPlayer extends events.EventEmitter {
 
-    private _logger: Logger = createLogger(MusicPlayer.name);
+    private _baseLogger: Logger = createLogger(MusicPlayer.name);
 
     @inject(ClientHandle.name)
     protected _clientHandle: ClientHandle;
@@ -191,14 +191,19 @@ export abstract class MusicPlayer extends events.EventEmitter {
             stream = ytdl(song.link, {filter: "audioonly"});
         } catch (e) {
             let errorMessage: string = `Problem getting stream for song '${song.title}': '${e}'`;
-            this._logger.error(errorMessage);
+            this._baseLogger.error(errorMessage);
             this._commandOutputService.addOutput(errorMessage);
             return;
         }
         let streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: VOICE_CONNECTION_PASSES});
+        stream.on("error", (err: any) => {
+            let errorMesssage: string = `Problem with stream '${song.title}': '${err}'`;
+            this._baseLogger.error(errorMesssage);
+            this._commandOutputService.addOutput(errorMesssage);
+        });
         streamDispatcher.on("error", err => {
-            let errorMesssage: string = `Problem while playing stream '${song.title}': '${err}'`;
-            this._logger.error(errorMesssage);
+            let errorMesssage: string = `Problem with streamDispatcher'${song.title}': '${err}'`;
+            this._baseLogger.error(errorMesssage);
             this._commandOutputService.addOutput(errorMesssage);
         });
         streamDispatcher.setVolumeLogarithmic(this._volume);

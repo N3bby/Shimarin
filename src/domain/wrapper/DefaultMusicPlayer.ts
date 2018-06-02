@@ -63,7 +63,6 @@ export class DefaultMusicPlayer extends MusicPlayer {
             if(reason !== "forced") this.next();
         });
         this._streamDispatcher.on("error", err => {
-            this._logger.error(`while streaming audio '${err}'`);
             this._cleanStreamDispatcher();
             this.next();
         });
