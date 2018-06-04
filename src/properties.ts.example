@@ -48,3 +48,7 @@ export const VOICE_CONNECTION_PASSES: number = 3;
 
 //Amount of milliseconds that the music embed will update at (mainly for timestamp)
 export const MUSIC_EMBED_UPDATE_INTERVAL: number = 5000;
+
+//Whether to restrict usage of the music commands to a certain role (and what the snowflake id of that role is)
+export const MUSIC_REQUIRED_ROLE_TOGGLE: boolean = false;
+export const MUSIC_REQUIRED_ROLE_ID: string = "CHANGE THIS IF USED";
