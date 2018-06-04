@@ -59,7 +59,7 @@ export class VolumeCommand extends Command {
     }
 
     async execute(requestContext: RequestContext): Promise<CommandResponse> {
-        this._musicPlayer.next();
+        this._musicPlayer.volume = parseFloat(requestContext.args[0])/100;
         return new CommandResponse(CommandResponseType.SUCCESS, "skipped current song");
     }
 
