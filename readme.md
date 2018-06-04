@@ -16,6 +16,7 @@ I'll be working on improving this somewhat.
 - Searching for youtube songs by keyword
 - Reaction based bot interaction system. The amount of commands you need to use is minimal
 - Shows song progression
+- Allow only a certain role to use music commands
 
 **Only has single-server support atm**
 
