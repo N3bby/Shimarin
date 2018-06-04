@@ -30,7 +30,7 @@ export class PingCommand extends Command {
         return new CommandResponse(CommandResponseType.SUCCESS);
     }
 
-    authorize(requestContext: RequestContext): CommandResponse {
+    async authorize(requestContext: RequestContext): Promise<CommandResponse> {
         return new CommandResponse(CommandResponseType.SUCCESS);
     }
 

@@ -59,7 +59,7 @@ export abstract class Command {
      * @param {RequestContext} requestContext
      * @returns {boolean}
      */
-    abstract authorize(requestContext: RequestContext): CommandResponse;
+    abstract async authorize(requestContext: RequestContext): Promise<CommandResponse>;
 
     /**
      * Executes the command
@@ -82,7 +82,7 @@ export abstract class Command {
                 return validationResponse;
             }
 
-            let authorizationResponse: CommandResponse = this.authorize(requestContext);
+            let authorizationResponse: CommandResponse = await this.authorize(requestContext);
             if (authorizationResponse.type === CommandResponseType.ERROR) {
                 return authorizationResponse;
             }

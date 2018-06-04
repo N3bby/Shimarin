@@ -11,6 +11,8 @@ import {container} from "../../../inversify/inversify.config";
 import {MusicPlayer} from "../../wrapper/MusicPlayer";
 import {secondsToFormat, YoutubeSong} from "../../model/YoutubeSong";
 import {DefaultMusicPlayer} from "../../wrapper/DefaultMusicPlayer";
+import {RequestContext} from "../../model/RequestContext";
+import {CommandHandlerService} from "../../service/CommandHandlerService";
 
 /**
  * TODO Add current song/queue information + media buttons
@@ -22,6 +24,8 @@ export class MainManagedMessage extends ManagedMessage {
     private _commandOutputService: CommandOutputService;
     @inject(MusicPlayer.name)
     private _musicPlayer: MusicPlayer;
+    @inject(CommandHandlerService.name)
+    private _commandHandlerService: CommandHandlerService;
 
     private _timeoutRef: Timer;
 
@@ -166,21 +170,27 @@ export class MainManagedMessage extends ManagedMessage {
         if (messageReaction.message.id === this._message.id && user.id !== this._clientHandle.getActiveUser().id) {
             //Music reactions
             if (this._musicPlayer.isActive) {
-                //TODO Make this fire commands maybe? -> Authorization possible
+                let command: string;
+                let args: string[] = [];
                 switch (messageReaction.emoji.name) {
                     case "⏹":
-                        this._musicPlayer.stop();
-                        return; //Message will be re-created so no need to remove reaction
+                        command = "stop";
+                        break; //Message will be re-created so no need to remove reaction
                     case "⏩":
-                        this._musicPlayer.next();
+                        command = "skip";
                         break;
                     case "🔉":
+                        command = "volume";
+                        args.push(((this._musicPlayer.volume - VOLUME_STEP) * 100).toString());
                         this._musicPlayer.volume -= VOLUME_STEP;
                         break;
                     case "🔊":
+                        command = "volume";
+                        args.push(((this._musicPlayer.volume + VOLUME_STEP) * 100).toString());
                         this._musicPlayer.volume += VOLUME_STEP;
                         break;
                 }
+                this._commandHandlerService.handleCommand(new RequestContext(user, command, args, new Date()));
             }
             //Remove user reaction so it can be re-used
             messageReaction.remove(user).catch(reason => {

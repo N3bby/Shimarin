@@ -15,7 +15,7 @@ export abstract class ArgumentedCommand extends Command {
 
     abstract validateArgumented(requestContext: RequestContext, args: CommandArgument[], body: string): CommandResponse;
 
-    authorize(requestContext: RequestContext): CommandResponse {
+    async authorize(requestContext: RequestContext): Promise<CommandResponse> {
         return this._executeWithArguments(requestContext, this.authorizeArgumented) as CommandResponse;
     }
 

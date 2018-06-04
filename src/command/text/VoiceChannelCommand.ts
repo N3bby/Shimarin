@@ -31,7 +31,7 @@ export class VoiceChannelCommand extends Command{
         return command === "voiceChannel";
     }
 
-    authorize(requestContext: RequestContext): CommandResponse {
+    async authorize(requestContext: RequestContext): Promise<CommandResponse> {
         return new CommandResponse(CommandResponseType.SUCCESS);
     }
 

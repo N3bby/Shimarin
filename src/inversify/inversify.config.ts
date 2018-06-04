@@ -15,7 +15,6 @@ import {SongSelectionManagedMessage} from "../domain/message/song_selection/Song
 import * as events from "events";
 import {VoiceChannelCommand} from "../command/text/VoiceChannelCommand";
 import {DefaultMusicPlayer} from "../domain/wrapper/DefaultMusicPlayer";
-import {ClearMessagesCommand} from "../command/text/ClearMessagesCommand";
 import {SkipCommand} from "../command/music/SkipCommand";
 import {StopCommand} from "../command/music/StopCommand";
 import {VolumeCommand} from "../command/music/VolumeCommand";
@@ -50,6 +49,5 @@ container.bind<Command>(Command.name).to(SkipCommand);
 container.bind<Command>(Command.name).to(StopCommand);
 container.bind<Command>(Command.name).to(VolumeCommand);
 container.bind<Command>(Command.name).to(VoiceChannelCommand);
-container.bind<Command>(Command.name).to(ClearMessagesCommand);
 
 export {container};

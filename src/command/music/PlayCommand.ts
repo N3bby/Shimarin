@@ -4,18 +4,14 @@ import {RequestContext} from "../../domain/model/RequestContext";
 import {CommandResponse, CommandResponseType} from "../CommandResponse";
 import {YoutubeSearchApiWrapper} from "../../domain/wrapper/YoutubeSearchApiWrapper";
 import {YoutubeSong} from "../../domain/model/YoutubeSong";
-import {ManagedMessageService} from "../../domain/service/ManagedMessageService";
 import {SongSelectionManagedMessage} from "../../domain/message/song_selection/SongSelectionMessage";
-import {createLogger, Logger} from "../../logging/Logging";
 import {MusicPlayer} from "../../domain/wrapper/MusicPlayer";
 import {ClientHandle} from "../../domain/wrapper/ClientHandle";
 import {container} from "../../inversify/inversify.config";
+import {MUSIC_REQUIRED_ROLE_ID, MUSIC_REQUIRED_ROLE_TOGGLE} from "../../properties";
 
 @injectable()
 export class PlayCommand extends Command {
-
-    @inject(ManagedMessageService.name)
-    private _managedMessageService: ManagedMessageService;
 
     @inject(MusicPlayer.name)
     private _musicPlayer: MusicPlayer;
@@ -53,8 +49,16 @@ export class PlayCommand extends Command {
         }
     }
 
-    authorize(requestContext: RequestContext): CommandResponse {
-        return new CommandResponse(CommandResponseType.SUCCESS);
+    async authorize(requestContext: RequestContext): Promise<CommandResponse> {
+        if(MUSIC_REQUIRED_ROLE_TOGGLE) {
+            if(await this._clientHandle.userHasRole(requestContext.user, MUSIC_REQUIRED_ROLE_ID)) {
+                return new CommandResponse(CommandResponseType.SUCCESS);
+            } else {
+                return new CommandResponse(CommandResponseType.ERROR, "you're not allowed to use this command");
+            }
+        } else {
+            return new CommandResponse(CommandResponseType.SUCCESS);
+        }
     }
 
     async execute(requestContext: RequestContext): Promise<CommandResponse> {

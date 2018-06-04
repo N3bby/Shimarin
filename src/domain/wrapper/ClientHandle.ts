@@ -1,12 +1,12 @@
 import {
     Channel,
     ChannelLogsQueryOptions,
-    Client, Collection,
+    Client, Collection, GuildMember,
     Message,
-    MessageReaction,
+    MessageReaction, Role, RoleResolvable,
     Snowflake,
     TextChannel,
-    User,
+    User, UserResolvable,
     VoiceChannel
 } from "discord.js";
 import {DISCORD_TOKEN, MAIN_TEXT_CHANNEL} from "../../properties";
@@ -163,6 +163,25 @@ export class ClientHandle extends events.EventEmitter {
 
         return result;
 
+    }
+
+    /**
+     * Gets the GuildMember for the UserResolvable in the Guild of the main text channel
+     * @param {"discord.js".UserResolvable} user
+     * @returns {Promise<"discord.js".GuildMember>}
+     */
+    async getGuildMember(user: UserResolvable): Promise<GuildMember> {
+        return await this.getMainTextChannel().guild.fetchMember(user);
+    }
+
+    /**
+     * Checks whether the User has a given role with id in the Guild of the main channel
+     * @returns {Promise<"discord.js".GuildMember>}
+     */
+    async userHasRole(user: UserResolvable, roleid: Snowflake): Promise<boolean> {
+        let guildMember: GuildMember = await this.getGuildMember(user);
+        let role: Role = guildMember.roles.find("id", roleid);
+        return role !== null;
     }
 
     private _registerEventDelegates() {
