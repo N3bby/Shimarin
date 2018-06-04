@@ -17,7 +17,7 @@ I'll be working on improving this somewhat.
 - Reaction based bot interaction system. The amount of commands you need to use is minimal
 - Shows song progression
 
-*Only has single-server support atm*
+**Only has single-server support atm**
 
 ## Setup
 
