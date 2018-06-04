@@ -11,7 +11,7 @@ export class Logger {
 
     log(logLevel: LogLevel, message: string, color: string) {
         if(logLevel < LOG_LEVEL) return;
-        let localTimeStr: string = moment().local().format("YYYY-mm-DD HH:mm:ss,SSS");
+        let localTimeStr: string = moment().local().format("YYYY-MM-DD HH:mm:ss,SSS");
         let logLevelStr: string = LogLevel[logLevel];
         console.log(`${color}${localTimeStr} ${logLevelStr} [${this._componentName}] ${message}\x1b[0m`)
     }
