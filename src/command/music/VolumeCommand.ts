@@ -56,7 +56,7 @@ export class VolumeCommand extends Command {
             if(await this._clientHandle.userHasRole(requestContext.user, MUSIC_REQUIRED_ROLE_ID)) {
                 return new CommandResponse(CommandResponseType.SUCCESS);
             } else {
-                return new CommandResponse(CommandResponseType.ERROR, "you're not allowed to use this command");
+                return new CommandResponse(CommandResponseType.UNAUTHORIZED, "you're not allowed to use this command");
             }
         } else {
             return new CommandResponse(CommandResponseType.SUCCESS);

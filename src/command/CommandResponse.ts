@@ -40,6 +40,11 @@ export enum CommandResponseType {
     /**
      * Error during execution of command step
      */
-    ERROR
+    ERROR,
+
+    /**
+     * User is not allowed to do something
+     */
+    UNAUTHORIZED
 
 }

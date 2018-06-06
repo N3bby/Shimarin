@@ -78,19 +78,19 @@ export abstract class Command {
         try {
 
             let validationResponse: CommandResponse = this.validate(requestContext);
-            if (validationResponse.type === CommandResponseType.ERROR) {
+            if (validationResponse.type !== CommandResponseType.SUCCESS) {
                 return validationResponse;
             }
 
             let authorizationResponse: CommandResponse = await this.authorize(requestContext);
-            if (authorizationResponse.type === CommandResponseType.ERROR) {
+            if (authorizationResponse.type !== CommandResponseType.SUCCESS) {
                 return authorizationResponse;
             }
 
             return this.execute(requestContext);
 
         } catch (e) {
-            this._logger.error(`on executing command '${e}'`);
+            this._logger.error(`on command '${e}'`);
             return new CommandResponse(CommandResponseType.ERROR, "something went wrong while executing your command");
         }
 
