@@ -52,3 +52,9 @@ export const MUSIC_EMBED_UPDATE_INTERVAL: number = 5000;
 //Whether to restrict usage of the music commands to a certain role (and what the snowflake id of that role is)
 export const MUSIC_REQUIRED_ROLE_TOGGLE: boolean = false;
 export const MUSIC_REQUIRED_ROLE_ID: string = "CHANGE THIS IF USED";
+
+//When and for how long to ignore a user if he/she tries to do commands they're not authorized to do
+export const UNAUTHORIZED_TRIES_THRESHOLD: number = 4;
+export const UNAUTHORIZED_TRIES_THRESHOLD_PERIOD: number = 60000; //in ms (default 1 min)
+export const UNAUTHORIZED_TRIES_IGNORE_PERIOD: number = 120000; //in ms (default 2 min)
+export const UNAUTHORIZED_TRIES_IGNORE_MESSAGE: string = "I think I'm gonna ignore you for a while...";
