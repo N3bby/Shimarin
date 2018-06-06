@@ -182,12 +182,10 @@ export class MainManagedMessage extends ManagedMessage {
                     case "🔉":
                         command = "volume";
                         args.push(((this._musicPlayer.volume - VOLUME_STEP) * 100).toString());
-                        this._musicPlayer.volume -= VOLUME_STEP;
                         break;
                     case "🔊":
                         command = "volume";
                         args.push(((this._musicPlayer.volume + VOLUME_STEP) * 100).toString());
-                        this._musicPlayer.volume += VOLUME_STEP;
                         break;
                 }
                 this._commandHandlerService.handleCommand(new RequestContext(user, command, args, new Date()));
