@@ -3,7 +3,7 @@
 Shimarin is a (WIP) Self-Hosted Discord Music Bot written in Typescript.  
 Most of the inspiration came from [jagrosh's music bot](https://github.com/jagrosh/MusicBot).  
 
-Disclaimer: The code is currently a bit messy and needs automated tests
+Remark: The code is currently a bit messy and needs automated tests
 
 ## Features
 
