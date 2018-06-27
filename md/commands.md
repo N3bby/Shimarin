@@ -19,5 +19,5 @@ Play from a youtube url:
 
 Searches for youtube videos matching the 'bts' keyword. Gives you a selection prompt in chat to pick one:
 ```
-?play bts
+?play bts dna
 ```
