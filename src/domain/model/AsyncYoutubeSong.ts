@@ -11,29 +11,31 @@ export class AsyncYoutubeSong extends YoutubeSong {
     }
 
     async title(): Promise<string> {
-        if(!this._fetched) await this._fetchData();
+        await this._fetchDataIfNeeded();
         return this._title;
     }
 
     async length(): Promise<number> {
-        if(!this._fetched) await this._fetchData();
+        await this._fetchDataIfNeeded();
         return this._length;
     }
 
     async link(): Promise<string> {
-        if(!this._fetched) await this._fetchData();
+        await this._fetchDataIfNeeded();
         return this._link;
     }
 
-    private async _fetchData(): Promise<void> {
-        this._fetched = true;
-        await this._ytSearchApiWrapper.getSongDetails(this._link).then(async value => {
-            this._title = await value.title();
-            this._length = await value.length();
-        }).catch(reason => {
-            this._title = "Unavailable";
-            this._length = 0;
-        });
+    private async _fetchDataIfNeeded(): Promise<void> {
+        if (!this._fetched) {
+            this._fetched = true;
+            await this._ytSearchApiWrapper.getSongDetails(this._link).then(async value => {
+                this._title = await value.title();
+                this._length = await value.length();
+            }).catch(reason => {
+                this._title = "Unavailable";
+                this._length = 0;
+            });
+        }
     }
 
 }
