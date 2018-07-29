@@ -9,6 +9,8 @@ import {MusicPlayer} from "../../domain/wrapper/MusicPlayer";
 import {ClientHandle} from "../../domain/wrapper/ClientHandle";
 import {container} from "../../inversify/inversify.config";
 import {MUSIC_REQUIRED_ROLE_ID, MUSIC_REQUIRED_ROLE_TOGGLE} from "../../properties";
+import {CommandOutputService} from "../../domain/service/CommandOutputService";
+import {AsyncYoutubeSong} from "../../domain/model/AsyncYoutubeSong";
 
 @injectable()
 export class PlayCommand extends Command {
@@ -18,6 +20,9 @@ export class PlayCommand extends Command {
 
     @inject(ClientHandle.name)
     private _clientHandle: ClientHandle;
+
+    @inject(CommandOutputService.name)
+    private _commandOutputService: CommandOutputService;
 
     private _ytSearchApiWrapper: YoutubeSearchApiWrapper = new YoutubeSearchApiWrapper();
 
@@ -62,25 +67,46 @@ export class PlayCommand extends Command {
     }
 
     async execute(requestContext: RequestContext): Promise<CommandResponse> {
-        let param = requestContext.args[0];
-        if (param.startsWith("http")) {
 
+        let param = requestContext.args[0];
+
+        if (param.startsWith("http")) {
             //Try to join voice channel if needed, if there is a problem (returns a CommandResponse), then return it
             let joinResponse: CommandResponse = await this._joinVoiceChannelIfNeeded(requestContext);
             if (joinResponse) return joinResponse;
 
-            //Try to fetch youtube song. If a CommandResponse is returned, there was an error, so return it.
-            let songResult: (CommandResponse | YoutubeSong) = await this._getYoutubeSong(param);
-            if(songResult instanceof CommandResponse) return songResult;
+            //If the url is from a playlist...
+            if (new RegExp("(.*\\/playlist\\?list=.*)|(.*\\/watch\\?.*list=.*)").test(param)) {
 
-            //Queue the song
-            this._musicPlayer.queue(songResult as YoutubeSong);
-            return new CommandResponse(CommandResponseType.SUCCESS, "queued your song");
+                let videoIds: string[];
+                try {
+                    videoIds = await this._ytSearchApiWrapper.getPlaylistInfo(param);
+                } catch (e) {
+                    this._logger.error(e);
+                    return new CommandResponse(CommandResponseType.ERROR, "problem while fetching videos from playlist");
+                }
 
+                this._musicPlayer.queueList(videoIds.map(id => new AsyncYoutubeSong(id)));
+                return new CommandResponse(CommandResponseType.SUCCESS, `queueing ${videoIds.length} songs...`);
+
+            } else {
+
+                //Otherwise its a normal video url
+
+                //Try to fetch youtube song. If a CommandResponse is returned, there was an error, so return it.
+                let songResult: (CommandResponse | YoutubeSong) = await this._getYoutubeSong(param);
+                if (songResult instanceof CommandResponse) return songResult;
+
+                //Queue the song
+                this._musicPlayer.queue(songResult as YoutubeSong);
+                return new CommandResponse(CommandResponseType.SUCCESS, "queued your song");
+
+            }
         } else {
             //If parameter is a keyword, do a search for the keyword and create a selection prompt
             return await this._doKeywordSearch(requestContext);
         }
+
     }
 
     /**

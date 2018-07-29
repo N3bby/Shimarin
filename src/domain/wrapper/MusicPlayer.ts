@@ -169,9 +169,15 @@ export abstract class MusicPlayer extends events.EventEmitter {
     abstract queue(song: YoutubeSong): void;
 
     /**
+     * Queues a list of songs. Use this when wanting to queue a lot of things at once (e.g. a playlist) to prevent event spam.
+     * @param {Array<YoutubeSong>} songList
+     */
+    abstract queueList(songList: Array<YoutubeSong>): void;
+
+    /**
      * Advance to the next song
      */
-    abstract next(): void;
+    abstract async next(): Promise<void>;
 
     /**
      * Stop playing songs
@@ -185,24 +191,24 @@ export abstract class MusicPlayer extends events.EventEmitter {
      * @returns {"discord.js".StreamDispatcher}
      * @private
      */
-    protected _playStream(song: YoutubeSong): StreamDispatcher {
+    protected async _playStream(song: YoutubeSong): Promise<StreamDispatcher> {
         let stream: any;
         try {
-            stream = ytdl(song.link, {filter: "audioonly"});
+            stream = ytdl(await song.link(), {filter: "audioonly"});
         } catch (e) {
-            let errorMessage: string = `Problem getting stream for song '${song.title}': '${e}'`;
+            let errorMessage: string = `Problem getting stream for song '${await song.title()}': '${e}'`;
             this._baseLogger.error(errorMessage);
             this._commandOutputService.addOutput(errorMessage);
             return;
         }
         let streamDispatcher = this._voiceConnection.playStream(stream, {seek: 0, passes: VOICE_CONNECTION_PASSES});
-        stream.on("error", (err: any) => {
-            let errorMesssage: string = `Problem with stream '${song.title}': '${err}'`;
+        stream.on("error", async (err: any) => {
+            let errorMesssage: string = `Problem with stream '${await song.title()}': '${err}'`;
             this._baseLogger.error(errorMesssage);
             this._commandOutputService.addOutput(errorMesssage);
         });
-        streamDispatcher.on("error", err => {
-            let errorMesssage: string = `Problem with streamDispatcher'${song.title}': '${err}'`;
+        streamDispatcher.on("error", async err => {
+            let errorMesssage: string = `Problem with streamDispatcher'${await song.title()}': '${err}'`;
             this._baseLogger.error(errorMesssage);
             this._commandOutputService.addOutput(errorMesssage);
         });

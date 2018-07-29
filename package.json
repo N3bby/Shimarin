@@ -19,7 +19,7 @@
     "moment": "^2.21.0",
     "node-opus": "^0.2.7",
     "reflect-metadata": "^0.1.12",
-    "youtube-audio-stream": "^0.2.0",
+    "youtube-playlist-info": "^1.1.2",
     "youtube-search": "^1.1.0",
     "ytdl-core": "^0.20.2"
   }

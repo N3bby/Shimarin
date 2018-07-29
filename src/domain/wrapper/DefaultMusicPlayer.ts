@@ -40,9 +40,22 @@ export class DefaultMusicPlayer extends MusicPlayer {
     }
 
     /**
+     * Queue a list of songs, starts playing if nothing is currently playing
+     * @param {Array<YoutubeSong>} songList
+     */
+    queueList(songList: Array<YoutubeSong>): void {
+        songList.forEach(song => this._queue.push(song));
+        if (!this.isActive) {
+            this.next();
+        } else {
+            this.emit("update");
+        }
+    }
+
+    /**
      * Advance to the next song in the queue. Will stop if no more songs are available
      */
-    next(): void {
+    async next(): Promise<void> {
         //Stop playing current song
         if (this._streamDispatcherIsPlaying) {
             this._streamDispatcher.end("forced");
@@ -56,7 +69,7 @@ export class DefaultMusicPlayer extends MusicPlayer {
         }
 
         //Start new song and register event handlers
-        this._streamDispatcher = this._playStream(this._currentSong);
+        this._streamDispatcher = await this._playStream(this._currentSong);
         this._streamDispatcherIsPlaying = true;
         this._streamDispatcher.on("end", reason => {
             this._cleanStreamDispatcher();

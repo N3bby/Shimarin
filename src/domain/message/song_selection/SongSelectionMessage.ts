@@ -74,13 +74,13 @@ export class SongSelectionManagedMessage extends ManagedMessage {
      * Returns a message with the different songs that were found and a countdown for when the message will be removed
      * @returns {{content: string; options: "discord.js".MessageOptions}}
      */
-    _buildMessage(): { content: string, options: MessageOptions } {
+    async _buildMessage(): Promise<{ content: string, options: MessageOptions }> {
         let embed: RichEmbed = new RichEmbed();
         embed.setTitle(`${this._user.tag}, I found these songs for you`);
 
         let description = "";
         for (let i = 0; i < this._ytSongs.length; i++) {
-            description += `\`${i + 1}.\` \`[${secondsToFormat(this._ytSongs[i].length)}]\` ${this._ytSongs[i].title}\n`;
+            description += `\`${i + 1}.\` \`[${secondsToFormat(await this._ytSongs[i].length())}]\` ${await this._ytSongs[i].title()}\n`;
         }
         embed.setDescription(description);
         embed.setFooter(`⌛ ${Math.round(this._msUntilDeletion / 1000)}s`);
@@ -110,7 +110,7 @@ export class SongSelectionManagedMessage extends ManagedMessage {
      * @param {"discord.js".User} user
      * @private
      */
-    private _reactionHandle(messageReaction: MessageReaction, user: User) {
+    private async _reactionHandle(messageReaction: MessageReaction, user: User) {
         //Only care about reactions to this message from the requesting user
         if(this._message === undefined) return;
         if (messageReaction.message.id === this._message.id && user.id === this._user.id) {
@@ -126,7 +126,7 @@ export class SongSelectionManagedMessage extends ManagedMessage {
             if (index >= 0 && index < this._ytSongs.length) {
                 let selectedSong = this._ytSongs[index];
                 //Call as new command
-                let requestContext = new RequestContext(user, "play", [selectedSong.link], new Date());
+                let requestContext = new RequestContext(user, "play", [await selectedSong.link()], new Date());
                 this._commandHandlerService.handleCommand(requestContext);
                 //Delete the message
                 this.deleteMessage();

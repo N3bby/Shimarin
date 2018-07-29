@@ -20,16 +20,24 @@ export class RepeatMusicPlayer extends MusicPlayer {
     }
 
     /**
+     * Unsupported method for RepeatMusicPlayer. Will throw an error
+     * @param {Array<YoutubeSong>} songList
+     */
+    queueList(songList: Array<YoutubeSong>): void {
+        throw new Error("Unsupported method. RepeatMusicPlayer cannot queue a list of songs (since it's supposed to repeat 1 song over and over");
+    }
+
+    /**
      * (Re-)starts the repeating song
      */
-    next(): void {
+    async next(): Promise<void> {
         //End current song
         if(this._streamDispatcherIsPlaying) {
             this._streamDispatcher.end();
         }
 
         //Play currentSong
-        this._streamDispatcher = this._playStream(this._currentSong);
+        this._streamDispatcher = await this._playStream(this._currentSong);
         this._streamDispatcherIsPlaying = true;
         this._streamDispatcher.on("end", reason => {
             this._cleanStreamDispatcher();
