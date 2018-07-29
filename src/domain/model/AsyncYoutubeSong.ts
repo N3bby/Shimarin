@@ -27,7 +27,6 @@ export class AsyncYoutubeSong extends YoutubeSong {
 
     private async _fetchDataIfNeeded(): Promise<void> {
         if (!this._fetched) {
-            this._fetched = true;
             await this._ytSearchApiWrapper.getSongDetails(this._link).then(async value => {
                 this._title = await value.title();
                 this._length = await value.length();
@@ -35,6 +34,7 @@ export class AsyncYoutubeSong extends YoutubeSong {
                 this._title = "Unavailable";
                 this._length = 0;
             });
+            this._fetched = true;
         }
     }
 
