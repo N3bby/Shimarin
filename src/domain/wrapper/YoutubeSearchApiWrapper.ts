@@ -66,7 +66,7 @@ export class YoutubeSearchApiWrapper {
     getPlaylistInfo(link: string): Promise<Array<string>> {
 
         //Get playlist id from link
-        let playlistId: string = new RegExp(".*list=([a-zA-Z0-9_]*).*").exec(link)[1];
+        let playlistId: string = new RegExp(".*list=([a-zA-Z0-9_\\-]*).*").exec(link)[1];
 
         //Check index.d.ts of "youtube-playlist-info" for PlaylistItem information
         //The types are not exported so I can't use them here :(
