@@ -4,7 +4,9 @@ import {YoutubeSearchApiWrapper} from "../wrapper/YoutubeSearchApiWrapper";
 export class AsyncYoutubeSong extends YoutubeSong {
 
     private _ytSearchApiWrapper: YoutubeSearchApiWrapper = new YoutubeSearchApiWrapper();
+
     private _fetched: boolean = false;
+    private _fetchingPromise: Promise<void>;
 
     constructor(link: string) {
         super(undefined, undefined, link);
@@ -27,13 +29,17 @@ export class AsyncYoutubeSong extends YoutubeSong {
 
     private async _fetchDataIfNeeded(): Promise<void> {
         if (!this._fetched) {
-            await this._ytSearchApiWrapper.getSongDetails(this._link).then(async value => {
-                this._title = await value.title();
-                this._length = await value.length();
-            }).catch(reason => {
-                this._title = "Unavailable";
-                this._length = 0;
-            });
+            //Prevent the promise from being created multiple times
+            if (!this._fetchingPromise) {
+                this._fetchingPromise = this._ytSearchApiWrapper.getSongDetails(this._link).then(async value => {
+                    this._title = await value.title();
+                    this._length = await value.length();
+                }).catch(reason => {
+                    this._title = "Unavailable";
+                    this._length = 0;
+                });
+            }
+            await this._fetchingPromise;
             this._fetched = true;
         }
     }
