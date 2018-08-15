@@ -19,6 +19,7 @@ import {SkipCommand} from "../command/music/SkipCommand";
 import {StopCommand} from "../command/music/StopCommand";
 import {VolumeCommand} from "../command/music/VolumeCommand";
 import {HoeCommand} from "../command/music/sounds/HoeCommand";
+import {SoundCommand} from "../command/music/sounds/SoundCommand";
 
 const container = new Container({defaultScope: "Singleton"});
 
@@ -50,6 +51,6 @@ container.bind<Command>(Command.name).to(SkipCommand);
 container.bind<Command>(Command.name).to(StopCommand);
 container.bind<Command>(Command.name).to(VolumeCommand);
 container.bind<Command>(Command.name).to(VoiceChannelCommand);
-container.bind<Command>(Command.name).to(HoeCommand);
+container.bind<Command>(Command.name).to(SoundCommand);
 
 export {container};

@@ -1,14 +1,14 @@
 import {Command} from "../../Command";
-import {inject, injectable} from "inversify";
-import {RequestContext} from "../../../domain/model/RequestContext";
 import {CommandResponse, CommandResponseType} from "../../CommandResponse";
-import {MusicPlayer} from "../../../domain/wrapper/MusicPlayer";
+import {RequestContext} from "../../../domain/model/RequestContext";
 import {ClientHandle} from "../../../domain/wrapper/ClientHandle";
-import {container} from "../../../inversify/inversify.config";
 import {CommandHandlerService} from "../../../domain/service/CommandHandlerService";
+import {inject, injectable} from "inversify";
+import {container} from "../../../inversify/inversify.config";
+import {MusicPlayer} from "../../../domain/wrapper/MusicPlayer";
 
 @injectable()
-export class HoeCommand extends Command {
+export class SoundCommand extends Command {
 
     @inject(MusicPlayer.name)
     private _musicPlayer: MusicPlayer;
@@ -16,29 +16,38 @@ export class HoeCommand extends Command {
     @inject(ClientHandle.name)
     private _clientHandle: ClientHandle;
 
-    private _ytHoeUrl: string = "https://www.youtube.com/watch?v=b1FinfVUp38";
+    private _sounds: Map<string, string> = new Map<string, string>();
+
+    constructor() {
+        super();
+        this._sounds.set("hoe", "https://www.youtube.com/watch?v=b1FinfVUp38");
+        this._sounds.set("poggers", "https://www.youtube.com/watch?v=XbSM3tC0Lsc");
+    }
 
     getLogName(): string {
-        return HoeCommand.name;
+        return SoundCommand.name;
     }
 
     get name(): string {
-        return "hoe";
+        return "sound"
     }
 
     get description(): string {
-        return "plays 'your mom's a hoe' meme";
+        return "plays a sound, possible sounds are: " + Array.from(this._sounds.keys()).reduce((k1, k2) => k1 + ", " + k2, "");
     }
 
     get syntax(): string {
-        return "hoe";
+        return "<sound>";
     }
 
     matches(command: string): boolean {
-        return command === "hoe";
+        return Array.from(this._sounds.keys()).find(sound => command === sound) !== undefined;
     }
 
     validate(requestContext: RequestContext): CommandResponse {
+        if(!this._sounds.get(requestContext.command)) {
+            return new CommandResponse(CommandResponseType.ERROR, `sound '${requestContext.command}' not found`);
+        }
         return new CommandResponse(CommandResponseType.SUCCESS);
     }
 
@@ -47,7 +56,8 @@ export class HoeCommand extends Command {
     }
 
     async execute(requestContext: RequestContext): Promise<CommandResponse> {
-        let playCommand: RequestContext = new RequestContext(requestContext.user, "play", [this._ytHoeUrl], new Date());
+        let soundLink = this._sounds.get(requestContext.command);
+        let playCommand: RequestContext = new RequestContext(requestContext.user, "play", [soundLink], new Date());
 
         //Bad hack to prevent circular dependencies (maybe fixable using lazyInject?)
         let commandHandlerService: CommandHandlerService = container.get(CommandHandlerService.name);
