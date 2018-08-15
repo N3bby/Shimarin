@@ -18,7 +18,6 @@ import {DefaultMusicPlayer} from "../domain/wrapper/DefaultMusicPlayer";
 import {SkipCommand} from "../command/music/SkipCommand";
 import {StopCommand} from "../command/music/StopCommand";
 import {VolumeCommand} from "../command/music/VolumeCommand";
-import {HoeCommand} from "../command/music/sounds/HoeCommand";
 import {SoundCommand} from "../command/music/sounds/SoundCommand";
 
 const container = new Container({defaultScope: "Singleton"});
