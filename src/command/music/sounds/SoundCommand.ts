@@ -22,6 +22,7 @@ export class SoundCommand extends Command {
         super();
         this._sounds.set("hoe", "https://www.youtube.com/watch?v=b1FinfVUp38");
         this._sounds.set("poggers", "https://www.youtube.com/watch?v=XbSM3tC0Lsc");
+        this._sounds.set("hyo", "https://www.youtube.com/watch?v=-XzlCWn57Jw");
     }
 
     getLogName(): string {
