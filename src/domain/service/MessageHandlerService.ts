@@ -30,31 +30,35 @@ export class MessageHandlerService {
     }
 
     private _handleMessage(message: Message) {
-        //Ignore own messages
-        if(message.author.id === this._activeUser.id) {
-            return;
-        }
-        //If message is not in the guild of the main channel, ignore it
-        if(message.guild.id !== this._mainTextChannel.guild.id) {
-            return;
-        }
-        //If not listening to other channels and message is in another channel, ignore it
-        if(message.channel.id !== MAIN_TEXT_CHANNEL && !LISTEN_TO_OTHER_CHANNELS) {
-            return;
-        }
         try {
-            if (message.content.startsWith(COMMAND_PREFIX)) {
-                //Is a command
-                this._commandHandlerService.handleMessage(message);
-                message.delete().catch(reason => {
-                    this._logger.error(`on delete '${reason}'`);
-                });
-            } else {
-                //Is a normal text message
-                this._managedMessageService.handleMessage(message);
+            //Ignore own messages
+            if (message.author.id === this._activeUser.id) {
+                return;
+            }
+            //If message is not in the guild of the main channel, ignore it
+            if (message.guild.id !== this._mainTextChannel.guild.id) {
+                return;
+            }
+            //If not listening to other channels and message is in another channel, ignore it
+            if (message.channel.id !== MAIN_TEXT_CHANNEL && !LISTEN_TO_OTHER_CHANNELS) {
+                return;
+            }
+            try {
+                if (message.content.startsWith(COMMAND_PREFIX)) {
+                    //Is a command
+                    this._commandHandlerService.handleMessage(message);
+                    message.delete().catch(reason => {
+                        this._logger.error(`on delete '${reason}'`);
+                    });
+                } else {
+                    //Is a normal text message
+                    this._managedMessageService.handleMessage(message);
+                }
+            } catch (e) {
+                this._logger.error(`Error thrown for message '${message.content}' -> '${e}'`);
             }
         } catch (e) {
-            this._logger.error(`Error thrown for message '${message.content}' -> '${e}'`);
+            this._logger.error(`Weird af error. Try to debug this somehow ${e}`)
         }
     }
 

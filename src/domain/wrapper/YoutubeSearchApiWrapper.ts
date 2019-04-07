@@ -2,10 +2,12 @@ import * as youtubeSearch from "youtube-search";
 import {YOUTUBE_DATA_API_KEY} from "../../properties";
 import {YoutubeSong} from "../model/YoutubeSong";
 import {YouTubeSearchResults} from "youtube-search";
+
 const ytdl = require("ytdl-core");
+const ypi = require("youtube-playlist-info");
 
 /**
- * Wrapper for the youtube search api
+ * Wrapper for the youtube search api (and playlist-info)
  */
 export class YoutubeSearchApiWrapper {
 
@@ -37,13 +39,13 @@ export class YoutubeSearchApiWrapper {
         //Return array of songs
         return getSearchResults(keywords).then(searchResults => {
             let promises: Promise<YoutubeSong>[] = [];
-            for(let searchResult of searchResults) {
+            for (let searchResult of searchResults) {
                 promises.push(this.getSongDetails(searchResult.link));
             }
             return Promise.all(promises);
         }).then(results => {
             let youtubeSongs: YoutubeSong[] = [];
-            for(let ytSong of results) {
+            for (let ytSong of results) {
                 youtubeSongs.push(ytSong);
             }
             return youtubeSongs;
@@ -51,12 +53,27 @@ export class YoutubeSearchApiWrapper {
     }
 
     getSongDetails(link: string): Promise<YoutubeSong> {
-        return new Promise<YoutubeSong>(resolve => {
-            ytdl.getInfo(link, (err: any, info: any) => {
-                if(err) throw err;
-                resolve(new YoutubeSong(info.title, info.length_seconds, link))
-            });
+        return ytdl.getInfo(link).then((info: any) => {
+            return new YoutubeSong(info.title, info.length_seconds, link);
         });
+    }
+
+    /**
+     * Returns a list of video ids from the given playlist
+     * @param {string} link
+     * @returns {Promise<Array<string>>}
+     */
+    getPlaylistInfo(link: string): Promise<Array<string>> {
+
+        //Get playlist id from link
+        let playlistId: string = new RegExp(".*list=([a-zA-Z0-9_\\-]*).*").exec(link)[1];
+
+        //Check index.d.ts of "youtube-playlist-info" for PlaylistItem information
+        //The types are not exported so I can't use them here :(
+        return ypi(YOUTUBE_DATA_API_KEY, playlistId).then((items: any[]) => {
+            return items.map(item => item.resourceId.videoId);
+        })
+
     }
 
 }

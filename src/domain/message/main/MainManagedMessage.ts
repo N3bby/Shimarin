@@ -71,7 +71,7 @@ export class MainManagedMessage extends ManagedMessage {
         }, BOTTOM_MESSAGE_CONVERSATION_WAIT_DELAY);
     }
 
-    protected _buildMessage(): { content: string, options: MessageOptions } {
+    protected async _buildMessage(): Promise<{ content: string, options: MessageOptions }> {
         let content: string = "";
         let options: MessageOptions = {embed: null};
 
@@ -79,8 +79,8 @@ export class MainManagedMessage extends ManagedMessage {
         content += "\n**Enter a command to make me do something~**";
 
         if (this._musicPlayer.isActive) {
-            if(this._musicPlayer instanceof DefaultMusicPlayer) {
-                options.embed = this._buildMusicEmbedForDefault();
+            if (this._musicPlayer instanceof DefaultMusicPlayer) {
+                options.embed = await this._buildMusicEmbedForDefault();
             } else {
                 throw Error("No implementation for current MusicPlayer");
             }
@@ -89,22 +89,21 @@ export class MainManagedMessage extends ManagedMessage {
         return {content: content, options: options};
     }
 
-    private _buildMusicEmbedForDefault(): RichEmbed {
+    private async _buildMusicEmbedForDefault(): Promise<RichEmbed> {
 
         let embed: RichEmbed = new RichEmbed();
 
         //Currently playing
-        let time: string = `[${secondsToFormat(this._musicPlayer.currentTime)}/${secondsToFormat(this._musicPlayer.currentSong.length)}]`;
-        embed.addField("Currently playing", `${this._musicPlayer.currentSong.title}\n${this._buildTimeIndicator()} ${time} 🔊 ${(this._musicPlayer.volume * 100).toPrecision(3)}%`);
+        let time: string = `[${secondsToFormat(this._musicPlayer.currentTime)}/${secondsToFormat(await this._musicPlayer.currentSong.length())}]`;
+        embed.addField("Currently playing", `${await this._musicPlayer.currentSong.title()}\n${await this._buildTimeIndicator()} ${time} 🔊 ${(this._musicPlayer.volume * 100).toPrecision(3)}%`);
 
         //In queue
         let queue: YoutubeSong[] = (this._musicPlayer as DefaultMusicPlayer).getQueue();
         if (queue.length > 0) {
             //Format first two songs in queue
             let firstTwoSongs: YoutubeSong[] = queue.slice(0, 2);
-            let queueStr: string = firstTwoSongs
-                .map((value, index) => `\`${index + 1}.\` \`[${secondsToFormat(value.length)}]\` **${value.title}**`)
-                .reduce((s1, s2) => s1 + "\n" + s2);
+            let queueStr: string = await Promise.all(firstTwoSongs.map(async (value, index) => `\`${index + 1}.\` \`[${secondsToFormat(await value.length())}]\` **${await value.title()}**`))
+                .then(value => value.reduce((s1, s2) => s1 + "\n" + s2));
             embed.addField("Queued", queueStr);
             //If there are more, show an indicator how many extra songs in queue
             if (queue.length > 2) {
@@ -118,10 +117,10 @@ export class MainManagedMessage extends ManagedMessage {
 
     }
 
-    private _buildTimeIndicator(): string {
+    private async _buildTimeIndicator(): Promise<string> {
 
         let time = this._musicPlayer.currentTime;
-        let maxTime = this._musicPlayer.currentSong.length;
+        let maxTime = await this._musicPlayer.currentSong.length();
         let t: number = time / maxTime;
         if (t > 1) t = 1;
         if (t < 0) t = 0;

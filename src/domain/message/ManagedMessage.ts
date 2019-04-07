@@ -48,7 +48,7 @@ export abstract class ManagedMessage {
      * Builds the message
      * @returns {{content: string; options: "discord.js".MessageOptions}}
      */
-    protected abstract _buildMessage(): { content: string, options: MessageOptions };
+    protected abstract async _buildMessage(): Promise<{ content: string, options: MessageOptions }>;
 
     /**
      * Makes the message with a delay after which it is deleted
@@ -63,7 +63,7 @@ export abstract class ManagedMessage {
             this._deletionTimer = setTimeout(this.delayedDeletionCallback.bind(this), deleteAfter >= MESSAGE_DELETE_INTERVAL ? MESSAGE_DELETE_INTERVAL : deleteAfter);
         }
         //Create the message
-        let data = this._buildMessage();
+        let data = await this._buildMessage();
         let message = await this._channel.send(data.content, data.options).then(message => {
             this._message = message as Message;
         }).catch(reason => {
@@ -105,7 +105,7 @@ export abstract class ManagedMessage {
      */
     async updateMessage() {
         if (this._message !== undefined) {
-            let messageContent = this._buildMessage();
+            let messageContent = await this._buildMessage();
             await this._message.edit(messageContent.content, messageContent.options).catch(reason => {
                 this._logger.error(`on update '${reason}'`);
             });

@@ -81,7 +81,7 @@ export class CommandHandlerService {
                 }
                 this._logger.info(`${requestContext.user.tag} executed command '${requestContext.command + argumentString}'. response was [${CommandResponseType[commandResponse.type]}] '${commandResponse.message}'`);
             }).catch(reason => {
-                this._logger.error(`Error on command '${requestContext.command}' with args '${requestContext.args.reduce((a1, a2) => a1 + " " + a2)}': '${reason}'\n${reason.stack}`);
+                this._logger.error(`Error on command '${requestContext.command}' with args '${requestContext.args.reduce((a1, a2) => a1 + " " + a2, "")}': '${reason}'\n${reason.stack}`);
                 this._commandOutputService.addOutput(`${requestContext.user.tag}, Something went wrong: '${reason}'`);
             });
         }

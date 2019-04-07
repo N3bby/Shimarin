@@ -1,9 +1,9 @@
 
 export class YoutubeSong {
 
-    private _title: string;
-    private _length: number;
-    private _link: string;
+    protected _title: string;
+    protected _length: number;
+    protected _link: string;
 
     constructor(title: string, length: number, link: string) {
         this._title = title;
@@ -11,7 +11,7 @@ export class YoutubeSong {
         this._link = link;
     }
 
-    get title(): string {
+    async title(): Promise<string> {
         return this._title;
     }
 
@@ -19,11 +19,11 @@ export class YoutubeSong {
      * Gets the length of the song in seconds
      * @returns {number}
      */
-    get length(): number {
+    async length(): Promise<number> {
         return this._length;
     }
 
-    get link(): string {
+    async link(): Promise<string> {
         return this._link;
     }
 
